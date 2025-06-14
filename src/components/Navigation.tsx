@@ -27,10 +27,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
 
   const mainNavigationItems = [
     { id: 'home', label: 'Home' },
-    { id: 'products', label: 'Products' },
   ];
 
   const categoryItems = [
+    { id: 'products', label: 'All Products' },
     { id: 'mens', label: 'Mens' },
     { id: 'womens', label: 'Womens' },
     { id: 'girls', label: 'Girls' },
@@ -39,6 +39,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
     { id: 'accessories', label: 'Accessories' },
     { id: 'others', label: 'Others' },
   ];
+
+  const isProductsActive = ['products', 'mens', 'womens', 'girls', 'boys', 'beauty', 'accessories', 'others'].includes(currentView);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white sticky-top">
@@ -81,15 +83,17 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
               </li>
             ))}
 
-            {/* Category Dropdown */}
+            {/* Products Dropdown */}
             <li className="nav-item dropdown">
               <button
-                className="nav-link dropdown-toggle btn btn-link text-decoration-none"
+                className={`nav-link dropdown-toggle btn btn-link text-decoration-none ${
+                  isProductsActive ? 'active' : ''
+                }`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Categories
+                Products
               </button>
               <ul className="dropdown-menu">
                 {categoryItems.map((item) => (
