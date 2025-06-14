@@ -18,17 +18,14 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  // Enhanced filter states
+  // Enhanced filter states (removed brands)
   const [filters, setFilters] = useState({
     priceRange: [0, 2000],
-    selectedBrands: [] as string[],
     selectedGenders: [] as string[],
     selectedSizes: [] as string[],
     selectedColors: [] as string[],
     sortBy: 'default',
   });
-
-  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
 
   // Mock data for sizes and colors (in a real app, these would come from the API)
   const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40', '42'];
@@ -135,10 +132,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
       
       setProducts(data.products);
       
-      // Extract unique brands
-      const brands = [...new Set(data.products.map(p => p.brand).filter(Boolean))];
-      setAvailableBrands(brands);
-      
     } catch (err) {
       setError('Failed to load products. Please try again.');
       console.error('Error loading products:', err);
@@ -152,11 +145,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
       // Price filter
       const discountedPrice = product.price * (1 - product.discountPercentage / 100);
       if (discountedPrice < filters.priceRange[0] || discountedPrice > filters.priceRange[1]) {
-        return false;
-      }
-      
-      // Brand filter
-      if (filters.selectedBrands.length > 0 && !filters.selectedBrands.includes(product.brand)) {
         return false;
       }
 
@@ -236,7 +224,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   const clearAllFilters = () => {
     setFilters({
       priceRange: [0, 2000],
-      selectedBrands: [],
       selectedGenders: [],
       selectedSizes: [],
       selectedColors: [],
@@ -246,7 +233,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.selectedBrands.length > 0) count++;
     if (filters.selectedGenders.length > 0) count++;
     if (filters.selectedSizes.length > 0) count++;
     if (filters.selectedColors.length > 0) count++;
@@ -425,34 +411,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                       <span>${filters.priceRange[1]}</span>
                     </div>
                   </div>
-
-                  {/* Brands */}
-                  {availableBrands.length > 0 && (
-                    <div className="mb-4">
-                      <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
-                        Brands
-                        {filters.selectedBrands.length > 0 && (
-                          <span className="badge bg-primary">{filters.selectedBrands.length}</span>
-                        )}
-                      </h6>
-                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {availableBrands.map(brand => (
-                          <div key={brand} className="form-check mb-2">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`brand-${brand}`}
-                              checked={filters.selectedBrands.includes(brand)}
-                              onChange={() => handleArrayFilterToggle('selectedBrands', brand)}
-                            />
-                            <label className="form-check-label small" htmlFor={`brand-${brand}`}>
-                              {brand}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Sizes */}
                   <div className="mb-4">
