@@ -55,6 +55,27 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       newErrors.username = usernameValidation.errors[0];
     }
 
+    // First Name validation
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = 'First name must be at least 2 characters';
+    }
+
+    // Last Name validation
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = 'Last name must be at least 2 characters';
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -67,11 +88,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    // Email validation (optional but if provided, must be valid)
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
     }
 
     setErrors(newErrors);
@@ -91,7 +107,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
         password: formData.password,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        email: formData.email.trim() || undefined,
+        email: formData.email.trim(),
       });
       
       if (result.success) {
@@ -147,6 +163,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                     id="username"
                     name="username"
                     type="text"
+                    required
                     value={formData.username}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
@@ -175,39 +192,47 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
               {/* First Name */}
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
+                  First Name *
                 </label>
                 <input
                   id="firstName"
                   name="firstName"
                   type="text"
+                  required
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
+                    errors.firstName ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="Your first name"
                 />
+                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
               </div>
 
               {/* Last Name */}
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
+                  Last Name *
                 </label>
                 <input
                   id="lastName"
                   name="lastName"
                   type="text"
+                  required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
+                    errors.lastName ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="Your last name"
                 />
+                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
 
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                  Email Address *
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -217,12 +242,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                     id="email"
                     name="email"
                     type="email"
+                    required
                     value={formData.email}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
                       errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="your.email@example.com (optional)"
+                    placeholder="your.email@example.com"
                   />
                 </div>
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -241,6 +267,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                     id="password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
+                    required
                     value={formData.password}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
@@ -285,6 +312,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
+                    required
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
