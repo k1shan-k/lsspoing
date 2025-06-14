@@ -9,12 +9,11 @@ interface SignupFormProps {
 
 const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -39,8 +38,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       setPasswordValidation(validatePassword(value));
     }
 
-    // Real-time validation for username
-    if (name === 'username') {
+    // Real-time validation for first name (username)
+    if (name === 'firstName') {
       setUsernameValidation(validateUsername(value));
     }
   };
@@ -48,25 +47,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Username validation
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (!usernameValidation.isValid) {
-      newErrors.username = usernameValidation.errors[0];
-    }
-
-    // First Name validation
+    // First Name validation (treated as username)
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
-    }
-
-    // Last Name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.firstName = 'Name is required';
+    } else if (!usernameValidation.isValid) {
+      newErrors.firstName = usernameValidation.errors[0];
     }
 
     // Email validation
@@ -103,7 +88,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
     
     try {
       const result = await signup({
-        username: formData.username.trim(),
+        username: formData.firstName.trim(), // Use first name as username
         password: formData.password,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -150,37 +135,37 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
             )}
 
             <div className="space-y-4">
-              {/* Username */}
+              {/* First Name (Username) */}
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Username *
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Name *
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="username"
-                    name="username"
+                    id="firstName"
+                    name="firstName"
                     type="text"
                     required
-                    value={formData.username}
+                    value={formData.firstName}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-                      errors.username ? 'border-red-300 bg-red-50' : 
-                      formData.username && usernameValidation.isValid ? 'border-green-300 bg-green-50' :
+                      errors.firstName ? 'border-red-300 bg-red-50' : 
+                      formData.firstName && usernameValidation.isValid ? 'border-green-300 bg-green-50' :
                       'border-gray-300'
                     }`}
-                    placeholder="Choose a unique username"
+                    placeholder="Enter your name"
                   />
-                  {formData.username && usernameValidation.isValid && (
+                  {formData.firstName && usernameValidation.isValid && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     </div>
                   )}
                 </div>
-                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
-                {formData.username && !usernameValidation.isValid && usernameValidation.errors.length > 0 && (
+                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                {formData.firstName && !usernameValidation.isValid && usernameValidation.errors.length > 0 && (
                   <div className="mt-1">
                     {usernameValidation.errors.map((error, index) => (
                       <p key={index} className="text-xs text-red-600">{error}</p>
@@ -189,44 +174,20 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                 )}
               </div>
 
-              {/* First Name */}
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-                    errors.firstName ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
-                  placeholder="Your first name"
-                />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
-              </div>
-
-              {/* Last Name */}
+              {/* Last Name (Optional) */}
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
+                  Last Name
                 </label>
                 <input
                   id="lastName"
                   name="lastName"
                   type="text"
-                  required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-                    errors.lastName ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
-                  placeholder="Your last name"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  placeholder="Your last name (optional)"
                 />
-                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
 
               {/* Email */}
