@@ -100,6 +100,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
     }
   };
 
+  const getFieldValidationClass = (fieldName: string, isValid?: boolean) => {
+    if (errors[fieldName]) return 'is-invalid';
+    if (formData[fieldName as keyof typeof formData] && isValid !== false) return 'is-valid';
+    return '';
+  };
+
   return (
     <div className="auth-container">
       <div className="container">
@@ -111,67 +117,56 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                 <div className="auth-icon secondary">
                   <UserPlus />
                 </div>
-                <h2 className="h3 fw-bold text-dark mb-2">Create your account</h2>
-                <p className="text-muted">Join us and start shopping today</p>
+                <h2 className="display-6 fw-bold mb-2">Create Account</h2>
+                <p className="text-muted">Join our community and start your shopping journey</p>
               </div>
 
               {/* Form */}
               <form onSubmit={handleSubmit}>
                 {errors.form && (
-                  <div className="alert alert-danger d-flex align-items-center" role="alert">
-                    <AlertCircle size={16} className="me-2" />
+                  <div className="alert alert-danger d-flex align-items-center border-0 shadow-sm" role="alert">
+                    <AlertCircle size={18} className="me-2 flex-shrink-0" />
                     <div>{errors.form}</div>
                   </div>
                 )}
 
-                <div className="mb-3">
-                  <label htmlFor="firstName" className="form-label fw-semibold">
-                    Name <span className="text-danger">*</span>
-                  </label>
-                  <div className="position-relative">
-                    <User className="position-absolute top-50 translate-middle-y ms-3 text-muted" size={20} />
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className={`form-control form-control-custom ps-5 pe-5 ${
-                        errors.firstName ? 'form-control-error' : 
-                        formData.firstName && usernameValidation.isValid ? 'form-control-success' : ''
-                      }`}
-                      placeholder="Enter your name"
-                    />
-                    {formData.firstName && usernameValidation.isValid && (
-                      <CheckCircle className="position-absolute top-50 translate-middle-y end-0 me-3 text-success" size={20} />
-                    )}
-                  </div>
-                  {errors.firstName && <div className="text-danger small mt-1">{errors.firstName}</div>}
-                  {formData.firstName && !usernameValidation.isValid && usernameValidation.errors.length > 0 && (
-                    <div className="mt-1">
-                      {usernameValidation.errors.map((error, index) => (
-                        <div key={index} className="text-danger small">{error}</div>
-                      ))}
+                <div className="row g-3 mb-3">
+                  <div className="col-md-6">
+                    <label htmlFor="firstName" className="form-label">
+                      First Name <span className="text-danger">*</span>
+                    </label>
+                    <div className="position-relative">
+                      <User className="position-absolute top-50 translate-middle-y ms-3 text-muted" size={20} />
+                      <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className={`form-control ps-5 ${getFieldValidationClass('firstName', usernameValidation.isValid)}`}
+                        placeholder="John"
+                      />
                     </div>
-                  )}
+                    {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label htmlFor="lastName" className="form-label">Last Name</label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className={`form-control ${getFieldValidationClass('lastName')}`}
+                      placeholder="Doe"
+                    />
+                  </div>
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="lastName" className="form-label fw-semibold">Last Name</label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="form-control form-control-custom"
-                    placeholder="Your last name (optional)"
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label fw-semibold">
+                  <label htmlFor="email" className="form-label">
                     Email Address <span className="text-danger">*</span>
                   </label>
                   <div className="position-relative">
@@ -183,17 +178,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className={`form-control form-control-custom ps-5 ${
-                        errors.email ? 'form-control-error' : ''
-                      }`}
-                      placeholder="your.email@example.com"
+                      className={`form-control ps-5 ${getFieldValidationClass('email')}`}
+                      placeholder="john.doe@example.com"
                     />
                   </div>
-                  {errors.email && <div className="text-danger small mt-1">{errors.email}</div>}
+                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label fw-semibold">
+                  <label htmlFor="password" className="form-label">
                     Password <span className="text-danger">*</span>
                   </label>
                   <div className="position-relative">
@@ -205,10 +198,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       required
                       value={formData.password}
                       onChange={handleChange}
-                      className={`form-control form-control-custom ps-5 pe-5 ${
-                        errors.password ? 'form-control-error' : 
-                        formData.password && passwordValidation.isValid ? 'form-control-success' : ''
-                      }`}
+                      className={`form-control ps-5 pe-5 ${getFieldValidationClass('password', passwordValidation.isValid)}`}
                       placeholder="At least 6 characters"
                     />
                     <button
@@ -223,18 +213,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       )}
                     </button>
                   </div>
-                  {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
+                  {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                   {formData.password && !passwordValidation.isValid && passwordValidation.errors.length > 0 && (
-                    <div className="mt-1">
+                    <div className="mt-2">
                       {passwordValidation.errors.map((error, index) => (
-                        <div key={index} className="text-danger small">{error}</div>
+                        <div key={index} className="small text-danger">• {error}</div>
                       ))}
                     </div>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="confirmPassword" className="form-label fw-semibold">
+                  <label htmlFor="confirmPassword" className="form-label">
                     Confirm Password <span className="text-danger">*</span>
                   </label>
                   <div className="position-relative">
@@ -246,10 +236,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       required
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`form-control form-control-custom ps-5 pe-5 ${
-                        errors.confirmPassword ? 'form-control-error' : 
-                        formData.confirmPassword && formData.password === formData.confirmPassword ? 'form-control-success' : ''
-                      }`}
+                      className={`form-control ps-5 pe-5 ${getFieldValidationClass('confirmPassword')}`}
                       placeholder="Confirm your password"
                     />
                     <button
@@ -267,21 +254,24 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       <CheckCircle className="position-absolute top-50 translate-middle-y text-success" style={{ right: '50px' }} size={20} />
                     )}
                   </div>
-                  {errors.confirmPassword && <div className="text-danger small mt-1">{errors.confirmPassword}</div>}
+                  {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading || !passwordValidation.isValid || !usernameValidation.isValid}
-                  className="btn btn-custom-secondary w-100 py-3 mb-3"
+                  className="btn btn-secondary w-100 py-3 mb-4"
                 >
                   {isLoading ? (
                     <div className="d-flex align-items-center justify-content-center">
-                      <div className="loading-spinner me-2" style={{ width: '16px', height: '16px' }}></div>
+                      <div className="loading-spinner me-2" style={{ width: '18px', height: '18px' }}></div>
                       Creating account...
                     </div>
                   ) : (
-                    'Create Account'
+                    <>
+                      <UserPlus size={18} className="me-2" />
+                      Create Account
+                    </>
                   )}
                 </button>
 
@@ -291,7 +281,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                     <button
                       type="button"
                       onClick={() => onViewChange('login')}
-                      className="btn btn-link p-0 text-primary text-decoration-underline"
+                      className="btn btn-link p-0 text-primary text-decoration-none fw-semibold"
                     >
                       Sign in here
                     </button>
