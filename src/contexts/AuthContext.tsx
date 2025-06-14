@@ -40,48 +40,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [emailToUsernameMap, setEmailToUsernameMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Load email to username mapping from DummyJSON users
-    const loadUserMapping = async () => {
+    // Load email to username mapping from DummyJSON users and check stored auth
+    const initializeAuth = async () => {
       try {
+        // First, load the user mapping
         const { users } = await getAllUsers();
         const mapping: Record<string, string> = {};
         users.forEach(user => {
           mapping[user.email] = user.username;
         });
         setEmailToUsernameMap(mapping);
-      } catch (error) {
-        console.error('Failed to load user mapping:', error);
-      }
-    };
 
-    loadUserMapping();
-
-    // Check for stored token on component mount
-    const checkStoredAuth = async () => {
-      const storedToken = localStorage.getItem('authToken');
-      const storedUser = localStorage.getItem('currentUser');
-      
-      if (storedToken && storedUser) {
-        try {
-          // For local users (signup), just restore from localStorage
-          if (storedToken.startsWith('local-')) {
-            setUser(JSON.parse(storedUser));
-          } else {
-            // For DummyJSON users, verify token is still valid
-            const dummyUser = await getCurrentUser(storedToken);
-            const convertedUser = convertDummyUserToUser(dummyUser);
-            setUser(convertedUser);
+        // Then check for stored token
+        const storedToken = localStorage.getItem('authToken');
+        const storedUser = localStorage.getItem('currentUser');
+        
+        if (storedToken && storedUser) {
+          try {
+            // For local users (signup), just restore from localStorage
+            if (storedToken.startsWith('local-')) {
+              setUser(JSON.parse(storedUser));
+            } else {
+              // For DummyJSON users, verify token is still valid
+              const dummyUser = await getCurrentUser(storedToken);
+              const convertedUser = convertDummyUserToUser(dummyUser);
+              setUser(convertedUser);
+            }
+          } catch (error) {
+            // Token is invalid, clear storage
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
           }
-        } catch (error) {
-          // Token is invalid, clear storage
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('currentUser');
         }
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    checkStoredAuth();
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
