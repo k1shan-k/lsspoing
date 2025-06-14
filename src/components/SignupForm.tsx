@@ -95,8 +95,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       });
       
       if (result.success) {
-        // Show success message and redirect to login
-        alert(result.message || 'Account created successfully!');
+        // Redirect to login page without showing alert
         onViewChange('login');
       } else {
         setErrors({ form: result.message || 'Signup failed. Please try again.' });
@@ -121,13 +120,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
             <p className="mt-2 text-sm text-gray-600">
               Join us and start shopping today
             </p>
-          </div>
-
-          {/* Note about demo */}
-          <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="text-sm text-amber-800">
-              <strong>Note:</strong> This is a demo signup. Your account will be created for demonstration purposes only.
-            </div>
           </div>
 
           {/* Form */}
