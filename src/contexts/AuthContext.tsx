@@ -1,10 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
-import { loginUser, getCurrentUser, DummyUser, getAllUsers } from '../services/auth';
+import { 
+  loginUser, 
+  signupUser,
+  getCurrentUser, 
+  refreshAuthToken,
+  DummyUser, 
+  getAllUsers,
+  SignupData,
+  secureStorage
+} from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  signup: (userData: SignupData) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
@@ -27,81 +37,113 @@ interface AuthProviderProps {
 // Convert DummyJSON user to our User format
 const convertDummyUserToUser = (dummyUser: DummyUser): User => ({
   id: dummyUser.id.toString(),
-  name: `${dummyUser.firstName} ${dummyUser.lastName}`,
+  name: `${dummyUser.firstName} ${dummyUser.lastName}`.trim() || dummyUser.username,
   email: dummyUser.email,
-  address: `${dummyUser.address.address}, ${dummyUser.address.city}, ${dummyUser.address.state} ${dummyUser.address.postalCode}`,
-  phoneNumber: dummyUser.phone,
+  address: dummyUser.address ? 
+    `${dummyUser.address.address}, ${dummyUser.address.city}, ${dummyUser.address.state} ${dummyUser.address.postalCode}`.replace(/^,\s*|,\s*$/, '') :
+    'No address provided',
+  phoneNumber: dummyUser.phone || 'No phone provided',
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [emailToUsernameMap, setEmailToUsernameMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Load email to username mapping from DummyJSON users and check stored auth
-    const initializeAuth = async () => {
-      try {
-        // First, load the user mapping
-        const { users } = await getAllUsers();
-        const mapping: Record<string, string> = {};
-        users.forEach(user => {
-          mapping[user.email] = user.username;
-        });
-        setEmailToUsernameMap(mapping);
-
-        // Then check for stored token
-        const storedToken = localStorage.getItem('authToken');
-        
-        if (storedToken) {
-          try {
-            // Verify token is still valid with DummyJSON
-            const dummyUser = await getCurrentUser(storedToken);
-            const convertedUser = convertDummyUserToUser(dummyUser);
-            setUser(convertedUser);
-          } catch (error) {
-            // Token is invalid, clear storage
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('currentUser');
-          }
-        }
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const initializeAuth = async () => {
+    try {
+      const storedToken = secureStorage.getToken();
+      
+      if (storedToken) {
+        try {
+          // Verify token is still valid
+          const dummyUser = await getCurrentUser(storedToken);
+          const convertedUser = convertDummyUserToUser(dummyUser);
+          setUser(convertedUser);
+        } catch (error) {
+          // Token is invalid, try to refresh
+          const refreshToken = secureStorage.getRefreshToken();
+          if (refreshToken) {
+            try {
+              const refreshResponse = await refreshAuthToken(refreshToken);
+              secureStorage.setToken(refreshResponse.token);
+              secureStorage.setRefreshToken(refreshResponse.refreshToken);
+              
+              const dummyUser = await getCurrentUser(refreshResponse.token);
+              const convertedUser = convertDummyUserToUser(dummyUser);
+              setUser(convertedUser);
+            } catch (refreshError) {
+              // Refresh failed, clear all tokens
+              secureStorage.clearTokens();
+            }
+          } else {
+            // No refresh token, clear storage
+            secureStorage.clearTokens();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to initialize auth:', error);
+      secureStorage.clearTokens();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
       setLoading(true);
       
-      // Handle specific demo user case first
-      let username: string;
-      if (email === 'kminchelle@qq.com') {
-        username = 'kminchelle';
-      } else {
-        // Convert email to username if we have the mapping, otherwise use email as fallback
-        username = emailToUsernameMap[email] || email;
-      }
-      
       const loginResponse = await loginUser(username, password);
+      
+      // Store tokens securely
+      secureStorage.setToken(loginResponse.token);
+      if (loginResponse.refreshToken) {
+        secureStorage.setRefreshToken(loginResponse.refreshToken);
+      }
       
       // Get full user data
       const dummyUser = await getCurrentUser(loginResponse.token);
       const convertedUser = convertDummyUserToUser(dummyUser);
       
       setUser(convertedUser);
-      localStorage.setItem('authToken', loginResponse.token);
       localStorage.setItem('currentUser', JSON.stringify(convertedUser));
       
-      return true;
+      return { success: true };
     } catch (error) {
-      console.error('Login failed:', error instanceof Error ? error.message : 'Unknown error');
-      return false;
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      console.error('Login failed:', errorMessage);
+      return { success: false, message: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signup = async (userData: SignupData): Promise<{ success: boolean; message?: string }> => {
+    try {
+      setLoading(true);
+      
+      // Create new user
+      const signupResponse = await signupUser(userData);
+      
+      // Auto-login after successful signup
+      const loginResult = await login(userData.username, userData.password);
+      
+      if (loginResult.success) {
+        return { success: true, message: 'Account created successfully!' };
+      } else {
+        return { 
+          success: false, 
+          message: 'Account created but login failed. Please try logging in manually.' 
+        };
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Signup failed';
+      console.error('Signup failed:', errorMessage);
+      return { success: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -109,8 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
+    secureStorage.clearTokens();
   };
 
   const isAuthenticated = !!user;
@@ -119,6 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, 
       login, 
+      signup,
       logout, 
       isAuthenticated, 
       loading 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn, Info } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, Info, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -8,7 +8,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -29,10 +29,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
     }
 
     if (!formData.password) {
@@ -51,15 +49,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     setIsLoading(true);
     
     try {
-      const success = await login(formData.email, formData.password);
+      const result = await login(formData.username, formData.password);
       
-      if (success) {
+      if (result.success) {
         onViewChange('home');
       } else {
-        setErrors({ form: 'Invalid email or password. Please try the demo credentials below.' });
+        setErrors({ form: result.message || 'Login failed. Please check your credentials.' });
       }
     } catch (error) {
-      setErrors({ form: 'Invalid email or password. Please try the demo credentials below.' });
+      setErrors({ form: 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +65,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
 
   const useDemoCredentials = () => {
     setFormData({
-      email: 'kminchelle@qq.com',
+      username: 'kminchelle',
       password: '0lelplR'
     });
     setErrors({});
@@ -112,33 +110,36 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             {errors.form && (
               <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-600">{errors.form}</p>
+                <div className="flex items-center">
+                  <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
+                  <p className="text-sm text-red-600">{errors.form}</p>
+                </div>
               </div>
             )}
 
             <div className="space-y-4">
-              {/* Email */}
+              {/* Username */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  Username
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Try: kminchelle@qq.com"
+                    placeholder="Try: kminchelle"
                   />
                 </div>
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
               </div>
 
               {/* Password */}

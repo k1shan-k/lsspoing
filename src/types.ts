@@ -30,3 +30,8 @@ export interface User {
   address: string;
   phoneNumber: string;
 }
+
+export interface AuthError {
+  message: string;
+  code?: string;
+}
