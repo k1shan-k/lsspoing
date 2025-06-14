@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, SignupData } from '../types';
+import { User } from '../types';
 import { loginUser, getCurrentUser, DummyUser, getAllUsers } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (userData: SignupData) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
@@ -53,19 +52,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Then check for stored token
         const storedToken = localStorage.getItem('authToken');
-        const storedUser = localStorage.getItem('currentUser');
         
-        if (storedToken && storedUser) {
+        if (storedToken) {
           try {
-            // For local users (signup), just restore from localStorage
-            if (storedToken.startsWith('local-')) {
-              setUser(JSON.parse(storedUser));
-            } else {
-              // For DummyJSON users, verify token is still valid
-              const dummyUser = await getCurrentUser(storedToken);
-              const convertedUser = convertDummyUserToUser(dummyUser);
-              setUser(convertedUser);
-            }
+            // Verify token is still valid with DummyJSON
+            const dummyUser = await getCurrentUser(storedToken);
+            const convertedUser = convertDummyUserToUser(dummyUser);
+            setUser(convertedUser);
           } catch (error) {
             // Token is invalid, clear storage
             localStorage.removeItem('authToken');
@@ -86,80 +79,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       
-      // First try DummyJSON login
-      try {
-        // Convert email to username if we have the mapping
-        const username = emailToUsernameMap[email] || email;
-        
-        const loginResponse = await loginUser(username, password);
-        
-        // Get full user data
-        const dummyUser = await getCurrentUser(loginResponse.token);
-        const convertedUser = convertDummyUserToUser(dummyUser);
-        
-        setUser(convertedUser);
-        localStorage.setItem('authToken', loginResponse.token);
-        localStorage.setItem('currentUser', JSON.stringify(convertedUser));
-        
-        return true;
-      } catch (dummyError) {
-        // If DummyJSON login fails, try local users (for signup users)
-        const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-        const localUser = localUsers.find((u: any) => 
-          u.email === email && u.password === password
-        );
-        
-        if (localUser) {
-          const { password: _, ...userWithoutPassword } = localUser;
-          setUser(userWithoutPassword);
-          localStorage.setItem('authToken', 'local-' + userWithoutPassword.id);
-          localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-          return true;
-        }
-        
-        // If both DummyJSON and local login fail, throw a more specific error
-        throw new Error('Invalid email or password');
-      }
+      // Convert email to username if we have the mapping
+      const username = emailToUsernameMap[email] || email;
+      
+      const loginResponse = await loginUser(username, password);
+      
+      // Get full user data
+      const dummyUser = await getCurrentUser(loginResponse.token);
+      const convertedUser = convertDummyUserToUser(dummyUser);
+      
+      setUser(convertedUser);
+      localStorage.setItem('authToken', loginResponse.token);
+      localStorage.setItem('currentUser', JSON.stringify(convertedUser));
+      
+      return true;
     } catch (error) {
       console.error('Login failed:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     } finally {
       setLoading(false);
-    }
-  };
-
-  const signup = async (userData: SignupData): Promise<boolean> => {
-    try {
-      // Since DummyJSON doesn't have a real signup endpoint, 
-      // we'll simulate it by storing in localStorage and auto-login
-      const users = JSON.parse(localStorage.getItem('localUsers') || '[]');
-      const existingUser = users.find((u: any) => u.email === userData.email);
-      
-      if (existingUser) {
-        return false;
-      }
-
-      const newUser: User = {
-        id: Date.now().toString(),
-        name: userData.name,
-        email: userData.email,
-        address: userData.address,
-        phoneNumber: userData.phoneNumber,
-      };
-
-      // Store in local storage for future reference
-      users.push({ ...newUser, password: userData.password });
-      localStorage.setItem('localUsers', JSON.stringify(users));
-
-      // Auto-login after signup
-      setUser(newUser);
-      localStorage.setItem('currentUser', JSON.stringify(newUser));
-      localStorage.setItem('authToken', 'local-' + newUser.id);
-      
-      return true;
-    } catch (error) {
-      console.error('Signup error:', error);
-      return false;
     }
   };
 
@@ -175,7 +113,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, 
       login, 
-      signup, 
       logout, 
       isAuthenticated, 
       loading 

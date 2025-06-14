@@ -30,11 +30,3 @@ export interface User {
   address: string;
   phoneNumber: string;
 }
-
-export interface SignupData {
-  name: string;
-  email: string;
-  address: string;
-  phoneNumber: string;
-  password: string;
-}
