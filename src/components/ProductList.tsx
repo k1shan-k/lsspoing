@@ -54,10 +54,52 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
   // Move getProductGender function before its usage
   const getProductGender = (category: string): string => {
-    if (category.includes('mens') || category.includes('men')) return 'men';
-    if (category.includes('womens') || category.includes('women')) return 'women';
-    if (category.includes('kids') || category.includes('children')) return 'kids';
+    const lowerCategory = category.toLowerCase();
+    if (lowerCategory.includes('mens') || lowerCategory.includes('men')) return 'men';
+    if (lowerCategory.includes('womens') || lowerCategory.includes('women')) return 'women';
+    if (lowerCategory.includes('kids') || lowerCategory.includes('children') || lowerCategory.includes('boys') || lowerCategory.includes('girls')) return 'kids';
     return 'unisex';
+  };
+
+  // Function to check if product matches color filter (mock implementation)
+  const productMatchesColor = (product: Product, colors: string[]): boolean => {
+    if (colors.length === 0) return true;
+    
+    // Mock color matching based on product title/description
+    const productText = `${product.title} ${product.description}`.toLowerCase();
+    return colors.some(color => {
+      switch (color) {
+        case 'black': return productText.includes('black') || productText.includes('dark');
+        case 'white': return productText.includes('white') || productText.includes('light');
+        case 'red': return productText.includes('red') || productText.includes('crimson');
+        case 'blue': return productText.includes('blue') || productText.includes('navy');
+        case 'green': return productText.includes('green') || productText.includes('olive');
+        case 'yellow': return productText.includes('yellow') || productText.includes('gold');
+        case 'purple': return productText.includes('purple') || productText.includes('violet');
+        case 'pink': return productText.includes('pink') || productText.includes('rose');
+        case 'brown': return productText.includes('brown') || productText.includes('tan');
+        case 'gray': return productText.includes('gray') || productText.includes('grey') || productText.includes('silver');
+        default: return false;
+      }
+    });
+  };
+
+  // Function to check if product matches size filter (mock implementation)
+  const productMatchesSize = (product: Product, sizes: string[]): boolean => {
+    if (sizes.length === 0) return true;
+    
+    // Mock size matching - in a real app, this would be based on actual product variants
+    const productText = `${product.title} ${product.description}`.toLowerCase();
+    const category = product.category.toLowerCase();
+    
+    // For clothing categories, assume all sizes are available
+    if (category.includes('shirt') || category.includes('dress') || category.includes('top') || 
+        category.includes('clothing') || category.includes('fashion')) {
+      return sizes.some(size => ['XS', 'S', 'M', 'L', 'XL', 'XXL'].includes(size));
+    }
+    
+    // For other categories, assume numeric sizes
+    return sizes.some(size => ['28', '30', '32', '34', '36', '38', '40', '42'].includes(size));
   };
 
   useEffect(() => {
@@ -122,6 +164,20 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
       if (filters.selectedGenders.length > 0) {
         const productGender = getProductGender(product.category);
         if (!filters.selectedGenders.includes(productGender)) {
+          return false;
+        }
+      }
+
+      // Size filter (mock implementation)
+      if (filters.selectedSizes.length > 0) {
+        if (!productMatchesSize(product, filters.selectedSizes)) {
+          return false;
+        }
+      }
+
+      // Color filter (mock implementation)
+      if (filters.selectedColors.length > 0) {
+        if (!productMatchesColor(product, filters.selectedColors)) {
           return false;
         }
       }
@@ -229,7 +285,12 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All Products'}
             </h1>
             <p className="text-muted mb-0">
-              {filteredAndSortedProducts.length} products found
+              {filteredAndSortedProducts.length} of {products.length} products
+              {getActiveFiltersCount() > 0 && (
+                <span className="ms-2 badge bg-primary">
+                  {getActiveFiltersCount()} filter{getActiveFiltersCount() > 1 ? 's' : ''} applied
+                </span>
+              )}
             </p>
           </div>
           
@@ -240,6 +301,7 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                 type="button"
                 onClick={() => setViewMode('grid')}
                 className={`btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                title="Grid View"
               >
                 <Grid size={16} />
               </button>
@@ -247,6 +309,7 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                 type="button"
                 onClick={() => setViewMode('list')}
                 className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                title="List View"
               >
                 <List size={16} />
               </button>
@@ -288,7 +351,7 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
           {/* Enhanced Filters Sidebar */}
           {showFilters && (
             <div className="col-lg-3 mb-4">
-              <div className="card">
+              <div className="card sticky-top" style={{ top: '100px' }}>
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h5 className="mb-0">Filters</h5>
                   {getActiveFiltersCount() > 0 && (
@@ -301,10 +364,15 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                     </button>
                   )}
                 </div>
-                <div className="card-body">
+                <div className="card-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {/* Gender Filter */}
                   <div className="mb-4">
-                    <h6 className="fw-semibold mb-3">Gender</h6>
+                    <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
+                      Gender
+                      {filters.selectedGenders.length > 0 && (
+                        <span className="badge bg-primary">{filters.selectedGenders.length}</span>
+                      )}
+                    </h6>
                     {genderOptions.map(gender => (
                       <div key={gender.value} className="form-check mb-2">
                         <input
@@ -361,7 +429,12 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                   {/* Brands */}
                   {availableBrands.length > 0 && (
                     <div className="mb-4">
-                      <h6 className="fw-semibold mb-3">Brands</h6>
+                      <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
+                        Brands
+                        {filters.selectedBrands.length > 0 && (
+                          <span className="badge bg-primary">{filters.selectedBrands.length}</span>
+                        )}
+                      </h6>
                       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {availableBrands.map(brand => (
                           <div key={brand} className="form-check mb-2">
@@ -383,7 +456,12 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
                   {/* Sizes */}
                   <div className="mb-4">
-                    <h6 className="fw-semibold mb-3">Size</h6>
+                    <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
+                      Size
+                      {filters.selectedSizes.length > 0 && (
+                        <span className="badge bg-primary">{filters.selectedSizes.length}</span>
+                      )}
+                    </h6>
                     <div className="d-flex flex-wrap gap-2">
                       {availableSizes.map(size => (
                         <button
@@ -404,7 +482,12 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
                   {/* Colors */}
                   <div className="mb-4">
-                    <h6 className="fw-semibold mb-3">Color</h6>
+                    <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
+                      Color
+                      {filters.selectedColors.length > 0 && (
+                        <span className="badge bg-primary">{filters.selectedColors.length}</span>
+                      )}
+                    </h6>
                     <div className="d-flex flex-wrap gap-2">
                       {availableColors.map(color => (
                         <button
@@ -412,7 +495,7 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                           type="button"
                           className={`btn btn-sm d-flex align-items-center ${
                             filters.selectedColors.includes(color.value) 
-                              ? 'btn-primary' 
+                              ? 'btn-primary text-white' 
                               : 'btn-outline-secondary'
                           }`}
                           onClick={() => handleArrayFilterToggle('selectedColors', color.value)}
@@ -444,12 +527,17 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                 <div className="card">
                   <div className="card-body py-5">
                     <h5 className="text-muted mb-3">No products found matching your criteria.</h5>
-                    <button
-                      onClick={clearAllFilters}
-                      className="btn btn-outline-primary"
-                    >
-                      Clear Filters
-                    </button>
+                    <p className="text-muted mb-4">
+                      Try adjusting your filters or search terms to find what you're looking for.
+                    </p>
+                    {getActiveFiltersCount() > 0 && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="btn btn-outline-primary"
+                      >
+                        Clear All Filters
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
