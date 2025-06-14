@@ -12,7 +12,7 @@ import Cart from './components/Cart';
 import Wishlist from './components/Wishlist';
 
 function App() {
-  const [currentView, setCurrentView] = useState('home');
+  const [currentView, setCurrentView] = useState<string>('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 

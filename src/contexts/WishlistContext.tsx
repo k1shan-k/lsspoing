@@ -13,7 +13,7 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export const useWishlist = () => {
   const context = useContext(WishlistContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useWishlist must be used within a WishlistProvider');
   }
   return context;
@@ -61,13 +61,15 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     setWishlistItems([]);
   };
 
-  const value: WishlistContextType = {
-    wishlistItems,
-    addToWishlist,
-    removeFromWishlist,
-    isInWishlist,
-    clearWishlist,
-  };
-
-  return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
+  return (
+    <WishlistContext.Provider value={{
+      wishlistItems,
+      addToWishlist,
+      removeFromWishlist,
+      isInWishlist,
+      clearWishlist,
+    }}>
+      {children}
+    </WishlistContext.Provider>
+  );
 };

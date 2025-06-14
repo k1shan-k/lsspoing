@@ -45,14 +45,3 @@ export const searchProducts = async (query: string): Promise<{ products: Product
     throw error;
   }
 };
-
-export const fetchCategories = async (): Promise<string[]> => {
-  try {
-    const response = await fetch(`${BASE_URL}/products/categories`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
