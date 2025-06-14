@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { User, Lock, Eye, EyeOff, LogIn, Info, AlertCircle } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, Info, AlertCircle, Copy } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { getDemoCredentials } from '../services/auth';
 
 interface LoginFormProps {
   onViewChange: (view: string) => void;
@@ -14,8 +15,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
 
   const { login } = useAuth();
+  const demoCredentials = getDemoCredentials();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -63,12 +66,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     }
   };
 
-  const useDemoCredentials = () => {
-    setFormData({
-      username: 'kminchelle',
-      password: '0lelplR'
-    });
+  const useDemoCredentials = (username: string, password: string) => {
+    setFormData({ username, password });
     setErrors({});
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
   };
 
   return (
@@ -91,19 +95,49 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             <div className="flex items-start">
               <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="text-sm font-medium text-blue-800">Demo Account</h3>
+                <h3 className="text-sm font-medium text-blue-800">Demo Accounts Available</h3>
                 <p className="mt-1 text-sm text-blue-700">
-                  Use the demo credentials to explore the application
+                  Use any of the demo credentials below to explore the application
                 </p>
                 <button
                   type="button"
-                  onClick={useDemoCredentials}
+                  onClick={() => setShowDemoCredentials(!showDemoCredentials)}
                   className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500 underline"
                 >
-                  Fill demo credentials
+                  {showDemoCredentials ? 'Hide' : 'Show'} demo credentials
                 </button>
               </div>
             </div>
+            
+            {showDemoCredentials && (
+              <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                {demoCredentials.slice(0, 5).map((cred, index) => (
+                  <div key={index} className="flex items-center justify-between bg-white rounded p-2 text-sm">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{cred.username}</div>
+                      <div className="text-gray-600">{cred.password}</div>
+                    </div>
+                    <div className="flex space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(cred.username)}
+                        className="p-1 text-gray-400 hover:text-gray-600"
+                        title="Copy username"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => useDemoCredentials(cred.username, cred.password)}
+                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      >
+                        Use
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Form */}
@@ -136,7 +170,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                       errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Try: kminchelle"
+                    placeholder="Try: Bret"
                   />
                 </div>
                 {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
@@ -160,7 +194,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                     className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                       errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Try: 0lelplR"
+                    placeholder="Try: password123"
                   />
                   <button
                     type="button"

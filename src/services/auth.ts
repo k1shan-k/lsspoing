@@ -1,45 +1,41 @@
-const BASE_URL = 'https://dummyjson.com';
+const BASE_URL = 'https://jsonplaceholder.typicode.com';
 
 export interface LoginResponse {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  image: string;
+  name: string;
   token: string;
-  refreshToken: string;
 }
 
 export interface SignupResponse {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  image: string;
+  name: string;
 }
 
-export interface DummyUser {
+export interface MockUser {
   id: number;
+  name: string;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  image: string;
-  phone: string;
   address: {
-    address: string;
+    street: string;
+    suite: string;
     city: string;
-    coordinates: {
-      lat: number;
-      lng: number;
+    zipcode: string;
+    geo: {
+      lat: string;
+      lng: string;
     };
-    postalCode: string;
-    state: string;
+  };
+  phone: string;
+  website: string;
+  company: {
+    name: string;
+    catchPhrase: string;
+    bs: string;
   };
 }
 
@@ -51,24 +47,26 @@ export interface SignupData {
   email?: string;
 }
 
+// Mock users for demonstration (JSONPlaceholder has 10 users)
+const DEMO_CREDENTIALS = [
+  { username: 'Bret', password: 'password123' },
+  { username: 'Antonette', password: 'password123' },
+  { username: 'Samantha', password: 'password123' },
+  { username: 'Karianne', password: 'password123' },
+  { username: 'Kamren', password: 'password123' },
+  { username: 'Leopoldo_Corkery', password: 'password123' },
+  { username: 'Elwyn.Skiles', password: 'password123' },
+  { username: 'Maxime_Nienow', password: 'password123' },
+  { username: 'Delphine', password: 'password123' },
+  { username: 'Moriah.Stanton', password: 'password123' },
+];
+
 // Validate password requirements
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
-  }
-  
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
-  }
-  
-  if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
-  }
-  
-  if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
+  if (password.length < 6) {
+    errors.push('Password must be at least 6 characters long');
   }
   
   return {
@@ -89,14 +87,21 @@ export const validateUsername = (username: string): { isValid: boolean; errors: 
     errors.push('Username must be no more than 20 characters long');
   }
   
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    errors.push('Username can only contain letters, numbers, and underscores');
-  }
-  
   return {
     isValid: errors.length === 0,
     errors
   };
+};
+
+// Generate a mock JWT token
+const generateMockToken = (userId: number): string => {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = btoa(JSON.stringify({ 
+    userId, 
+    exp: Date.now() + (30 * 60 * 1000) // 30 minutes
+  }));
+  const signature = btoa(`mock-signature-${userId}-${Date.now()}`);
+  return `${header}.${payload}.${signature}`;
 };
 
 export const signupUser = async (userData: SignupData): Promise<SignupResponse> => {
@@ -113,46 +118,50 @@ export const signupUser = async (userData: SignupData): Promise<SignupResponse> 
       throw new Error(usernameValidation.errors.join('. '));
     }
 
-    const response = await fetch(`${BASE_URL}/users/add`, {
+    // Check if username already exists in demo credentials
+    const existingUser = DEMO_CREDENTIALS.find(cred => cred.username === userData.username);
+    if (existingUser) {
+      throw new Error('Username already exists. Please choose a different username.');
+    }
+
+    // Simulate API call to JSONPlaceholder
+    const response = await fetch(`${BASE_URL}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.username,
         username: userData.username,
-        password: userData.password,
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
         email: userData.email || `${userData.username}@example.com`,
-        phone: '',
-        image: 'https://robohash.org/' + userData.username,
         address: {
-          address: '',
+          street: '',
+          suite: '',
           city: '',
-          coordinates: { lat: 0, lng: 0 },
-          postalCode: '',
-          state: ''
+          zipcode: '',
+          geo: { lat: '0', lng: '0' }
+        },
+        phone: '',
+        website: '',
+        company: {
+          name: '',
+          catchPhrase: '',
+          bs: ''
         }
       })
     });
 
     if (!response.ok) {
-      let errorMessage = `Signup failed (${response.status} ${response.statusText})`;
-      
-      try {
-        const errorData = await response.json();
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (response.status === 400) {
-          errorMessage = 'Username already exists or invalid data provided';
-        }
-      } catch {
-        // If we can't parse the error response, use the default message
-      }
-      
-      throw new Error(errorMessage);
+      throw new Error('Failed to create account. Please try again.');
     }
 
     const data = await response.json();
-    return data;
+    
+    // Return mock signup response
+    return {
+      id: data.id || Date.now(),
+      username: userData.username,
+      email: userData.email || `${userData.username}@example.com`,
+      name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.username,
+    };
   } catch (error) {
     console.error('Signup error:', error);
     throw error;
@@ -161,52 +170,66 @@ export const signupUser = async (userData: SignupData): Promise<SignupResponse> 
 
 export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username,
-        password,
-        expiresInMins: 30, // Token expires in 30 minutes
-      })
-    });
+    // Check demo credentials first
+    const demoUser = DEMO_CREDENTIALS.find(cred => 
+      cred.username === username && cred.password === password
+    );
 
-    if (!response.ok) {
-      let errorMessage = `Login failed (${response.status} ${response.statusText})`;
+    if (demoUser) {
+      // Fetch user data from JSONPlaceholder
+      const userResponse = await fetch(`${BASE_URL}/users?username=${username}`);
+      const users = await userResponse.json();
       
-      try {
-        const errorData = await response.json();
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (response.status === 400) {
-          errorMessage = 'Invalid username or password';
-        }
-      } catch {
-        // If we can't parse the error response, use the default message
+      if (users.length > 0) {
+        const user = users[0];
+        return {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          name: user.name,
+          token: generateMockToken(user.id),
+        };
       }
-      
-      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-    return data;
+    // If not found in demo credentials, try to find by username only
+    const userResponse = await fetch(`${BASE_URL}/users?username=${username}`);
+    const users = await userResponse.json();
+    
+    if (users.length > 0) {
+      const user = users[0];
+      // For demo purposes, accept any password for existing JSONPlaceholder users
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        token: generateMockToken(user.id),
+      };
+    }
+
+    throw new Error('Invalid username or password');
   } catch (error) {
     console.error('Login error:', error);
     throw error;
   }
 };
 
-export const getCurrentUser = async (token: string): Promise<DummyUser> => {
+export const getCurrentUser = async (token: string): Promise<MockUser> => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/me`, {
-      method: 'GET',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    // Decode mock token to get user ID
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.userId;
+    
+    // Check if token is expired
+    if (payload.exp < Date.now()) {
+      throw new Error('Token expired');
+    }
 
+    const response = await fetch(`${BASE_URL}/users/${userId}`);
+    
     if (!response.ok) {
-      throw new Error('Failed to get user data - token may be expired');
+      throw new Error('Failed to get user data');
     }
 
     const data = await response.json();
@@ -219,37 +242,40 @@ export const getCurrentUser = async (token: string): Promise<DummyUser> => {
 
 export const refreshAuthToken = async (refreshToken: string): Promise<LoginResponse> => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        refreshToken,
-        expiresInMins: 30,
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to refresh token');
-    }
-
-    const data = await response.json();
-    return data;
+    // For mock API, we'll just generate a new token
+    // In a real app, this would validate the refresh token
+    const payload = JSON.parse(atob(refreshToken.split('.')[1]));
+    const userId = payload.userId;
+    
+    const response = await fetch(`${BASE_URL}/users/${userId}`);
+    const user = await response.json();
+    
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      name: user.name,
+      token: generateMockToken(user.id),
+    };
   } catch (error) {
     console.error('Token refresh error:', error);
     throw error;
   }
 };
 
-export const getAllUsers = async (): Promise<{ users: DummyUser[] }> => {
+export const getAllUsers = async (): Promise<{ users: MockUser[] }> => {
   try {
     const response = await fetch(`${BASE_URL}/users`);
-    const data = await response.json();
-    return data;
+    const users = await response.json();
+    return { users };
   } catch (error) {
     console.error('Get users error:', error);
     throw error;
   }
 };
+
+// Get demo credentials for UI display
+export const getDemoCredentials = () => DEMO_CREDENTIALS;
 
 // Secure token storage utilities
 export const secureStorage = {

@@ -5,8 +5,7 @@ import {
   signupUser,
   getCurrentUser, 
   refreshAuthToken,
-  DummyUser, 
-  getAllUsers,
+  MockUser, 
   SignupData,
   secureStorage
 } from '../services/auth';
@@ -34,15 +33,15 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Convert DummyJSON user to our User format
-const convertDummyUserToUser = (dummyUser: DummyUser): User => ({
-  id: dummyUser.id.toString(),
-  name: `${dummyUser.firstName} ${dummyUser.lastName}`.trim() || dummyUser.username,
-  email: dummyUser.email,
-  address: dummyUser.address ? 
-    `${dummyUser.address.address}, ${dummyUser.address.city}, ${dummyUser.address.state} ${dummyUser.address.postalCode}`.replace(/^,\s*|,\s*$/, '') :
+// Convert JSONPlaceholder user to our User format
+const convertMockUserToUser = (mockUser: MockUser): User => ({
+  id: mockUser.id.toString(),
+  name: mockUser.name,
+  email: mockUser.email,
+  address: mockUser.address ? 
+    `${mockUser.address.street} ${mockUser.address.suite}, ${mockUser.address.city} ${mockUser.address.zipcode}`.replace(/^\s*,\s*|\s*,\s*$/, '') :
     'No address provided',
-  phoneNumber: dummyUser.phone || 'No phone provided',
+  phoneNumber: mockUser.phone || 'No phone provided',
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -60,8 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedToken) {
         try {
           // Verify token is still valid
-          const dummyUser = await getCurrentUser(storedToken);
-          const convertedUser = convertDummyUserToUser(dummyUser);
+          const mockUser = await getCurrentUser(storedToken);
+          const convertedUser = convertMockUserToUser(mockUser);
           setUser(convertedUser);
         } catch (error) {
           // Token is invalid, try to refresh
@@ -70,10 +69,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             try {
               const refreshResponse = await refreshAuthToken(refreshToken);
               secureStorage.setToken(refreshResponse.token);
-              secureStorage.setRefreshToken(refreshResponse.refreshToken);
               
-              const dummyUser = await getCurrentUser(refreshResponse.token);
-              const convertedUser = convertDummyUserToUser(dummyUser);
+              const mockUser = await getCurrentUser(refreshResponse.token);
+              const convertedUser = convertMockUserToUser(mockUser);
               setUser(convertedUser);
             } catch (refreshError) {
               // Refresh failed, clear all tokens
@@ -101,13 +99,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Store tokens securely
       secureStorage.setToken(loginResponse.token);
-      if (loginResponse.refreshToken) {
-        secureStorage.setRefreshToken(loginResponse.refreshToken);
-      }
+      // Use the same token as refresh token for simplicity in mock API
+      secureStorage.setRefreshToken(loginResponse.token);
       
       // Get full user data
-      const dummyUser = await getCurrentUser(loginResponse.token);
-      const convertedUser = convertDummyUserToUser(dummyUser);
+      const mockUser = await getCurrentUser(loginResponse.token);
+      const convertedUser = convertMockUserToUser(mockUser);
       
       setUser(convertedUser);
       localStorage.setItem('currentUser', JSON.stringify(convertedUser));
@@ -129,8 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Create new user
       const signupResponse = await signupUser(userData);
       
-      // Return success without attempting auto-login since the dummy API
-      // doesn't persist new users for authentication
+      // Return success message asking user to log in
       return { 
         success: true, 
         message: 'Account created successfully! Please log in with your credentials.' 

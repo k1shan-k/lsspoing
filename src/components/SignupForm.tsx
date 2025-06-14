@@ -95,7 +95,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       });
       
       if (result.success) {
-        // Redirect to login page after successful signup
+        // Show success message and redirect to login
+        alert(result.message || 'Account created successfully!');
         onViewChange('login');
       } else {
         setErrors({ form: result.message || 'Signup failed. Please try again.' });
@@ -120,6 +121,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
             <p className="mt-2 text-sm text-gray-600">
               Join us and start shopping today
             </p>
+          </div>
+
+          {/* Note about demo */}
+          <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="text-sm text-amber-800">
+              <strong>Note:</strong> This is a demo signup. Your account will be created for demonstration purposes only.
+            </div>
           </div>
 
           {/* Form */}
@@ -248,7 +256,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                       formData.password && passwordValidation.isValid ? 'border-green-300 bg-green-50' :
                       'border-gray-300'
                     }`}
-                    placeholder="Create a strong password"
+                    placeholder="At least 6 characters"
                   />
                   <button
                     type="button"
