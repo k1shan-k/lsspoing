@@ -31,7 +31,9 @@ export interface User {
   phoneNumber: string;
 }
 
-export interface AuthError {
-  message: string;
-  code?: string;
+export interface FilterOptions {
+  category: string;
+  minPrice: number;
+  maxPrice: number;
+  brand: string;
 }
