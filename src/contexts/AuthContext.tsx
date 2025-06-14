@@ -129,17 +129,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Create new user
       const signupResponse = await signupUser(userData);
       
-      // Auto-login after successful signup
-      const loginResult = await login(userData.username, userData.password);
-      
-      if (loginResult.success) {
-        return { success: true, message: 'Account created successfully!' };
-      } else {
-        return { 
-          success: false, 
-          message: 'Account created but login failed. Please try logging in manually.' 
-        };
-      }
+      // Return success without attempting auto-login since the dummy API
+      // doesn't persist new users for authentication
+      return { 
+        success: true, 
+        message: 'Account created successfully! Please log in with your credentials.' 
+      };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Signup failed';
       console.error('Signup failed:', errorMessage);

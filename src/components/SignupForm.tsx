@@ -95,7 +95,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       });
       
       if (result.success) {
-        onViewChange('home');
+        // Redirect to login page after successful signup
+        onViewChange('login');
       } else {
         setErrors({ form: result.message || 'Signup failed. Please try again.' });
       }
