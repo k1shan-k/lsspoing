@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, Eye, EyeOff, LogIn, Info, AlertCircle, Copy, CheckCircle } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, Info, AlertCircle, Copy, CheckCircle, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getDemoCredentials } from '../services/auth';
 
@@ -96,6 +96,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
           <p className="text-muted">
             Sign in to your account to continue shopping
           </p>
+        </div>
+
+        {/* API Info */}
+        <div className="alert alert-info d-flex align-items-start" role="alert">
+          <Globe className="me-2 mt-1" size={20} />
+          <div>
+            <h6 className="alert-heading mb-1">JSONPlaceholder API Integration</h6>
+            <p className="mb-0 small">
+              This demo uses JSONPlaceholder API for realistic user data with local authentication fallback.
+            </p>
+          </div>
         </div>
 
         {/* Demo Section */}

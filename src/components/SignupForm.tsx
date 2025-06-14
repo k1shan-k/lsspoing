@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, MapPin, Phone, Lock, Eye, EyeOff, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, MapPin, Phone, Lock, Eye, EyeOff, UserPlus, AlertCircle, CheckCircle, Globe } from 'lucide-react';
 import { signup } from '../services/auth';
 
 interface SignupFormProps {
@@ -121,13 +121,24 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
           </p>
         </div>
 
+        {/* API Info */}
+        <div className="alert alert-info d-flex align-items-start" role="alert">
+          <Globe className="me-2 mt-1" size={20} />
+          <div>
+            <h6 className="alert-heading mb-1">JSONPlaceholder Integration</h6>
+            <p className="mb-0 small">
+              Registration uses JSONPlaceholder API with local storage fallback for full functionality.
+            </p>
+          </div>
+        </div>
+
         {/* Success Info */}
         <div className="alert alert-success d-flex align-items-start" role="alert">
           <CheckCircle className="me-2 mt-1" size={20} />
           <div>
             <h6 className="alert-heading mb-1">Registration Available!</h6>
             <p className="mb-0 small">
-              Create your account and start shopping immediately. All data is stored locally for this demo.
+              Create your account and start shopping immediately. Data is synchronized with JSONPlaceholder API.
             </p>
           </div>
         </div>
