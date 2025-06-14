@@ -39,10 +39,10 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
       body: JSON.stringify(credentials),
     });
 
-    const data = await response.json();
-
     if (response.ok) {
-      // Store token in localStorage
+      const data = await response.json();
+      
+      // Store token and user data in localStorage
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('currentUser', JSON.stringify(data));
       
@@ -51,16 +51,17 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
         user: data,
       };
     } else {
+      const errorData = await response.json();
       return {
         success: false,
-        error: data.message || 'Login failed',
+        error: errorData.message || 'Invalid credentials',
       };
     }
   } catch (error) {
     console.error('Login error:', error);
     return {
       success: false,
-      error: 'Network error. Please try again.',
+      error: 'Network error. Please check your connection and try again.',
     };
   }
 };

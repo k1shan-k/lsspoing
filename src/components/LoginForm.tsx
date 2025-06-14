@@ -33,11 +33,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.username) {
+    if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
     }
 
-    if (!formData.password) {
+    if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
     }
 
@@ -51,17 +51,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors({});
     
     try {
-      const success = await login(formData.username, formData.password);
+      const success = await login(formData.username.trim(), formData.password.trim());
       
       if (success) {
         onViewChange('home');
       } else {
-        setErrors({ form: 'Invalid username or password. Please try again.' });
+        setErrors({ form: 'Invalid username or password. Please check your credentials and try again.' });
       }
     } catch (error) {
-      setErrors({ form: 'An error occurred. Please try again.' });
+      console.error('Login error:', error);
+      setErrors({ form: 'An error occurred during login. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -163,6 +165,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                 onChange={handleChange}
                 className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                 placeholder="Enter your username"
+                autoComplete="username"
               />
             </div>
             {errors.username && (
@@ -188,6 +191,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                 onChange={handleChange}
                 className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                 placeholder="Enter your password"
+                autoComplete="current-password"
               />
               <button
                 type="button"
