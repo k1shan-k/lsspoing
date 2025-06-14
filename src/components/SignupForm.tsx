@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { User, Mail, MapPin, Phone, Lock, Eye, EyeOff, UserPlus, Info } from 'lucide-react';
+import { User, Mail, MapPin, Phone, Lock, Eye, EyeOff, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
+import { signup } from '../services/auth';
 
 interface SignupFormProps {
   onViewChange: (view: string) => void;
@@ -9,6 +10,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    username: '',
     address: '',
     phoneNumber: '',
     password: '',
@@ -39,10 +41,19 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       newErrors.name = 'Name must be at least 2 characters';
     }
 
+    // Username validation
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = 'Username must be at least 3 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username.trim())) {
+      newErrors.username = 'Username can only contain letters, numbers, and underscores';
+    }
+
     // Email validation
-    if (!formData.email) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
 
@@ -70,14 +81,26 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors({});
     
     try {
-      // Since DummyJSON doesn't support user registration, we'll show a message
-      // In a real app, you would call your registration API here
-      setErrors({ 
-        form: 'Registration is not available with DummyJSON API. Please use the demo login credentials provided on the login page.' 
+      const result = await signup({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        username: formData.username.trim(),
+        password: formData.password,
+        address: formData.address.trim(),
+        phoneNumber: formData.phoneNumber.trim(),
       });
+
+      if (result.success) {
+        // Show success message and redirect to home
+        onViewChange('home');
+      } else {
+        setErrors({ form: result.error || 'Registration failed. Please try again.' });
+      }
     } catch (error) {
+      console.error('Signup error:', error);
       setErrors({ form: 'An error occurred during registration. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -98,29 +121,22 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
           </p>
         </div>
 
-        {/* Info Section */}
-        <div className="alert alert-primary d-flex align-items-start" role="alert">
-          <Info className="me-2 mt-1" size={20} />
+        {/* Success Info */}
+        <div className="alert alert-success d-flex align-items-start" role="alert">
+          <CheckCircle className="me-2 mt-1" size={20} />
           <div>
-            <h6 className="alert-heading mb-1">Demo Mode</h6>
-            <p className="mb-2 small">
-              This demo uses DummyJSON API which doesn't support user registration. 
-              Please use the demo login credentials available on the login page.
+            <h6 className="alert-heading mb-1">Registration Available!</h6>
+            <p className="mb-0 small">
+              Create your account and start shopping immediately. All data is stored locally for this demo.
             </p>
-            <button
-              type="button"
-              onClick={() => onViewChange('login')}
-              className="btn btn-sm btn-gradient-primary"
-            >
-              Go to Login
-            </button>
           </div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
           {errors.form && (
-            <div className="alert alert-danger" role="alert">
+            <div className="alert alert-danger d-flex align-items-center" role="alert">
+              <AlertCircle className="me-2" size={20} />
               {errors.form}
             </div>
           )}
@@ -142,6 +158,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                   onChange={handleChange}
                   className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                   placeholder="Enter your full name"
+                  autoComplete="name"
                 />
               </div>
               {errors.name && (
@@ -152,29 +169,56 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
             </div>
 
             <div className="col-md-6 mb-3">
-              <label htmlFor="email" className="form-label fw-medium">
-                Email Address *
+              <label htmlFor="username" className="form-label fw-medium">
+                Username *
               </label>
               <div className="input-group">
                 <span className="input-group-text">
-                  <Mail size={20} />
+                  <User size={20} />
                 </span>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
+                  id="username"
+                  name="username"
+                  type="text"
+                  value={formData.username}
                   onChange={handleChange}
-                  className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                  placeholder="Enter your email address"
+                  className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                  placeholder="Choose a username"
+                  autoComplete="username"
                 />
               </div>
-              {errors.email && (
+              {errors.username && (
                 <div className="invalid-feedback d-block">
-                  {errors.email}
+                  {errors.username}
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label fw-medium">
+              Email Address *
+            </label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <Mail size={20} />
+              </span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                placeholder="Enter your email address"
+                autoComplete="email"
+              />
+            </div>
+            {errors.email && (
+              <div className="invalid-feedback d-block">
+                {errors.email}
+              </div>
+            )}
           </div>
 
           <div className="mb-3">
@@ -193,6 +237,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                 onChange={handleChange}
                 className={`form-control ${errors.address ? 'is-invalid' : ''}`}
                 placeholder="Enter your full address (optional)"
+                autoComplete="street-address"
               />
             </div>
             {errors.address && (
@@ -218,6 +263,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                 onChange={handleChange}
                 className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
                 placeholder="Enter your phone number (optional)"
+                autoComplete="tel"
               />
             </div>
             {errors.phoneNumber && (
@@ -244,6 +290,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                   onChange={handleChange}
                   className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                   placeholder="Create a password"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -276,6 +323,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
                   onChange={handleChange}
                   className={`form-control ${errors.verifyPassword ? 'is-invalid' : ''}`}
                   placeholder="Confirm your password"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

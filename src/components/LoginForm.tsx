@@ -105,13 +105,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             <h6 className="mb-0 fw-semibold text-primary">Demo Accounts Available</h6>
           </div>
           <p className="small text-muted mb-3">
-            Use these test credentials to explore the application:
+            Use these test credentials or create your own account:
           </p>
           
           {demoCredentials.map((cred, index) => (
             <div key={index} className="demo-credential">
               <div>
-                <div className="small fw-semibold">Account {index + 1}</div>
+                <div className="small fw-semibold">Demo Account {index + 1}</div>
                 <div className="small text-muted">
                   <strong>Username:</strong> {cred.username}
                 </div>
