@@ -44,7 +44,18 @@ export const loginUser = async (username: string, password: string): Promise<Log
     });
 
     if (!response.ok) {
-      throw new Error('Invalid credentials');
+      let errorMessage = `Login failed (${response.status} ${response.statusText})`;
+      
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        // If we can't parse the error response, use the default message
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
