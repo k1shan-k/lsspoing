@@ -79,8 +79,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       
-      // Convert email to username if we have the mapping
-      const username = emailToUsernameMap[email] || email;
+      // Handle specific demo user case first
+      let username: string;
+      if (email === 'kminchelle@qq.com') {
+        username = 'kminchelle';
+      } else {
+        // Convert email to username if we have the mapping, otherwise use email as fallback
+        username = emailToUsernameMap[email] || email;
+      }
       
       const loginResponse = await loginUser(username, password);
       
