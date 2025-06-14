@@ -10,11 +10,14 @@ import ProductList from './components/ProductList';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import Wishlist from './components/Wishlist';
+import LoadingSpinner from './components/LoadingSpinner';
+import { useAuth } from './contexts/AuthContext';
 
-function App() {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { loading } = useAuth();
 
   const handleViewChange = (view: string) => {
     setCurrentView(view);
@@ -32,6 +35,10 @@ function App() {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   const renderView = () => {
     switch (currentView) {
@@ -75,19 +82,25 @@ function App() {
   };
 
   return (
+    <div className="min-h-screen bg-gray-50">
+      {currentView !== 'login' && currentView !== 'signup' && (
+        <Navigation
+          currentView={currentView}
+          onViewChange={handleViewChange}
+          onSearch={handleSearch}
+        />
+      )}
+      {renderView()}
+    </div>
+  );
+};
+
+function App() {
+  return (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
-          <div className="min-h-screen bg-gray-50">
-            {currentView !== 'login' && currentView !== 'signup' && (
-              <Navigation
-                currentView={currentView}
-                onViewChange={handleViewChange}
-                onSearch={handleSearch}
-              />
-            )}
-            {renderView()}
-          </div>
+          <AppContent />
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>

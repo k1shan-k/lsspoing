@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, SignupData } from '../types';
+import { loginUser, getCurrentUser, DummyUser } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   signup: (userData: SignupData) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,49 +25,92 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Convert DummyJSON user to our User format
+const convertDummyUserToUser = (dummyUser: DummyUser): User => ({
+  id: dummyUser.id.toString(),
+  name: `${dummyUser.firstName} ${dummyUser.lastName}`,
+  email: dummyUser.email,
+  address: `${dummyUser.address.address}, ${dummyUser.address.city}, ${dummyUser.address.state} ${dummyUser.address.postalCode}`,
+  phoneNumber: dummyUser.phone,
+});
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    // Check for stored token on component mount
+    const checkStoredAuth = async () => {
+      const storedToken = localStorage.getItem('authToken');
+      const storedUser = localStorage.getItem('currentUser');
+      
+      if (storedToken && storedUser) {
+        try {
+          // Verify token is still valid by fetching user data
+          const dummyUser = await getCurrentUser(storedToken);
+          const convertedUser = convertDummyUserToUser(dummyUser);
+          setUser(convertedUser);
+        } catch (error) {
+          // Token is invalid, clear storage
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('currentUser');
+        }
+      }
+      setLoading(false);
+    };
+
+    checkStoredAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const foundUser = users.find((u: any) => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      const loginResponse = await loginUser(username, password);
+      
+      // Get full user data
+      const dummyUser = await getCurrentUser(loginResponse.token);
+      const convertedUser = convertDummyUserToUser(dummyUser);
+      
+      setUser(convertedUser);
+      localStorage.setItem('authToken', loginResponse.token);
+      localStorage.setItem('currentUser', JSON.stringify(convertedUser));
+      
       return true;
+    } catch (error) {
+      console.error('Login failed:', error);
+      return false;
+    } finally {
+      setLoading(false);
     }
-    return false;
   };
 
   const signup = async (userData: SignupData): Promise<boolean> => {
     try {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      // Since DummyJSON doesn't have a real signup endpoint, 
+      // we'll simulate it by storing in localStorage and auto-login
+      const users = JSON.parse(localStorage.getItem('localUsers') || '[]');
       const existingUser = users.find((u: any) => u.email === userData.email);
       
       if (existingUser) {
         return false;
       }
 
-      const newUser = {
+      const newUser: User = {
         id: Date.now().toString(),
-        ...userData
+        name: userData.name,
+        email: userData.email,
+        address: userData.address,
+        phoneNumber: userData.phoneNumber,
       };
 
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
+      // Store in local storage for future reference
+      users.push({ ...newUser, password: userData.password });
+      localStorage.setItem('localUsers', JSON.stringify(users));
 
-      const { password: _, ...userWithoutPassword } = newUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+      // Auto-login after signup
+      setUser(newUser);
+      localStorage.setItem('currentUser', JSON.stringify(newUser));
+      localStorage.setItem('authToken', 'local-' + newUser.id);
       
       return true;
     } catch (error) {
@@ -76,13 +121,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
   };
 
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      signup, 
+      logout, 
+      isAuthenticated, 
+      loading 
+    }}>
       {children}
     </AuthContext.Provider>
   );

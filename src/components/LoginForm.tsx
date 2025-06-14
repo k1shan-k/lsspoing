@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, LogIn, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -8,7 +8,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -30,10 +29,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
     }
 
     if (!formData.password) {
@@ -52,18 +49,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     setIsLoading(true);
     
     try {
-      const success = await login(formData.email, formData.password);
+      const success = await login(formData.username, formData.password);
       
       if (success) {
         onViewChange('home');
       } else {
-        setErrors({ form: 'Invalid email or password. Please try again.' });
+        setErrors({ form: 'Invalid username or password. Please try again.' });
       }
     } catch (error) {
       setErrors({ form: 'An error occurred. Please try again.' });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Demo credentials helper
+  const fillDemoCredentials = () => {
+    setFormData({
+      username: 'kminchelle',
+      password: '0lelplR'
+    });
   };
 
   return (
@@ -81,6 +86,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             </p>
           </div>
 
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>Demo Credentials:</strong>
+            </p>
+            <p className="text-xs text-blue-700 mb-2">
+              Username: kminchelle | Password: 0lelplR
+            </p>
+            <button
+              type="button"
+              onClick={fillDemoCredentials}
+              className="text-xs text-blue-600 hover:text-blue-800 underline"
+            >
+              Click to fill demo credentials
+            </button>
+          </div>
+
           {/* Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             {errors.form && (
@@ -90,28 +112,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             )}
 
             <div className="space-y-4">
-              {/* Email */}
+              {/* Username */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  Username
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Enter your email"
+                    placeholder="Enter your username"
                   />
                 </div>
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
               </div>
 
               {/* Password */}
