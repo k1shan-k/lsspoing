@@ -46,10 +46,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (storedToken && storedUser) {
         try {
-          // Verify token is still valid by fetching user data
-          const dummyUser = await getCurrentUser(storedToken);
-          const convertedUser = convertDummyUserToUser(dummyUser);
-          setUser(convertedUser);
+          // For local users (signup), just restore from localStorage
+          if (storedToken.startsWith('local-')) {
+            setUser(JSON.parse(storedUser));
+          } else {
+            // For DummyJSON users, verify token is still valid
+            const dummyUser = await getCurrentUser(storedToken);
+            const convertedUser = convertDummyUserToUser(dummyUser);
+            setUser(convertedUser);
+          }
         } catch (error) {
           // Token is invalid, clear storage
           localStorage.removeItem('authToken');
@@ -65,17 +70,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
-      const loginResponse = await loginUser(username, password);
       
-      // Get full user data
-      const dummyUser = await getCurrentUser(loginResponse.token);
-      const convertedUser = convertDummyUserToUser(dummyUser);
-      
-      setUser(convertedUser);
-      localStorage.setItem('authToken', loginResponse.token);
-      localStorage.setItem('currentUser', JSON.stringify(convertedUser));
-      
-      return true;
+      // First try DummyJSON login
+      try {
+        const loginResponse = await loginUser(username, password);
+        
+        // Get full user data
+        const dummyUser = await getCurrentUser(loginResponse.token);
+        const convertedUser = convertDummyUserToUser(dummyUser);
+        
+        setUser(convertedUser);
+        localStorage.setItem('authToken', loginResponse.token);
+        localStorage.setItem('currentUser', JSON.stringify(convertedUser));
+        
+        return true;
+      } catch (dummyError) {
+        // If DummyJSON login fails, try local users (for signup users)
+        const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
+        const localUser = localUsers.find((u: any) => 
+          (u.email === username || u.name === username) && u.password === password
+        );
+        
+        if (localUser) {
+          const { password: _, ...userWithoutPassword } = localUser;
+          setUser(userWithoutPassword);
+          localStorage.setItem('authToken', 'local-' + userWithoutPassword.id);
+          localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+          return true;
+        }
+        
+        // If both fail, throw the original error
+        throw dummyError;
+      }
     } catch (error) {
       console.error('Login failed:', error instanceof Error ? error.message : 'Unknown error');
       return false;
