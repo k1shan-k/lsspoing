@@ -19,7 +19,7 @@ function App() {
   const handleViewChange = (view: string) => {
     setCurrentView(view);
     setSelectedProductId(null);
-    if (view !== 'products') {
+    if (view !== 'products' && !['mens', 'womens', 'girls', 'boys', 'beauty', 'accessories', 'others'].includes(view)) {
       setSearchQuery('');
     }
   };
@@ -47,7 +47,6 @@ function App() {
       case 'beauty':
       case 'accessories':
       case 'others':
-      case 'car':
         return (
           <ProductList
             category={currentView}

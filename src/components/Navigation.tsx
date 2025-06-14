@@ -25,9 +25,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
     }
   };
 
-  const navigationItems = [
+  const mainNavigationItems = [
     { id: 'home', label: 'Home' },
     { id: 'products', label: 'Products' },
+  ];
+
+  const categoryItems = [
     { id: 'mens', label: 'Mens' },
     { id: 'womens', label: 'Womens' },
     { id: 'girls', label: 'Girls' },
@@ -35,7 +38,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
     { id: 'beauty', label: 'Beauty' },
     { id: 'accessories', label: 'Accessories' },
     { id: 'others', label: 'Others' },
-    { id: 'car', label: 'Car' },
   ];
 
   return (
@@ -62,7 +64,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
         {/* Navigation items */}
         <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {navigationItems.map((item) => (
+            {/* Main Navigation */}
+            {mainNavigationItems.map((item) => (
               <li key={item.id} className="nav-item">
                 <button
                   className={`nav-link btn btn-link text-decoration-none ${
@@ -77,6 +80,33 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
                 </button>
               </li>
             ))}
+
+            {/* Category Dropdown */}
+            <li className="nav-item dropdown">
+              <button
+                className="nav-link dropdown-toggle btn btn-link text-decoration-none"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Categories
+              </button>
+              <ul className="dropdown-menu">
+                {categoryItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      className={`dropdown-item ${currentView === item.id ? 'active' : ''}`}
+                      onClick={() => {
+                        onViewChange(item.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </li>
           </ul>
 
           {/* Search bar */}
