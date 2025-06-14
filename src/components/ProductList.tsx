@@ -18,7 +18,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  // Enhanced filter states (removed brands)
   const [filters, setFilters] = useState({
     priceRange: [0, 2000],
     selectedGenders: [] as string[],
@@ -27,7 +26,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
     sortBy: 'default',
   });
 
-  // Mock data for sizes and colors (in a real app, these would come from the API)
   const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40', '42'];
   const availableColors = [
     { name: 'Black', value: 'black', hex: '#000000' },
@@ -49,7 +47,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
     { value: 'unisex', label: 'Unisex' },
   ];
 
-  // Move getProductGender function before its usage
   const getProductGender = (category: string): string => {
     const lowerCategory = category.toLowerCase();
     if (lowerCategory.includes('mens') || lowerCategory.includes('men')) return 'men';
@@ -58,11 +55,9 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
     return 'unisex';
   };
 
-  // Function to check if product matches color filter (mock implementation)
   const productMatchesColor = (product: Product, colors: string[]): boolean => {
     if (colors.length === 0) return true;
     
-    // Mock color matching based on product title/description
     const productText = `${product.title} ${product.description}`.toLowerCase();
     return colors.some(color => {
       switch (color) {
@@ -81,21 +76,17 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
     });
   };
 
-  // Function to check if product matches size filter (mock implementation)
   const productMatchesSize = (product: Product, sizes: string[]): boolean => {
     if (sizes.length === 0) return true;
     
-    // Mock size matching - in a real app, this would be based on actual product variants
     const productText = `${product.title} ${product.description}`.toLowerCase();
     const category = product.category.toLowerCase();
     
-    // For clothing categories, assume all sizes are available
     if (category.includes('shirt') || category.includes('dress') || category.includes('top') || 
         category.includes('clothing') || category.includes('fashion')) {
       return sizes.some(size => ['XS', 'S', 'M', 'L', 'XL', 'XXL'].includes(size));
     }
     
-    // For other categories, assume numeric sizes
     return sizes.some(size => ['28', '30', '32', '34', '36', '38', '40', '42'].includes(size));
   };
 
@@ -113,7 +104,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
       if (searchQuery) {
         data = await searchProducts(searchQuery);
       } else if (category && category !== 'products') {
-        // Map category names to API categories
         const categoryMap: { [key: string]: string } = {
           'mens': 'mens-shirts',
           'womens': 'womens-dresses',
@@ -142,13 +132,11 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
   const filteredAndSortedProducts = React.useMemo(() => {
     let filtered = products.filter(product => {
-      // Price filter
       const discountedPrice = product.price * (1 - product.discountPercentage / 100);
       if (discountedPrice < filters.priceRange[0] || discountedPrice > filters.priceRange[1]) {
         return false;
       }
 
-      // Gender filter (based on category)
       if (filters.selectedGenders.length > 0) {
         const productGender = getProductGender(product.category);
         if (!filters.selectedGenders.includes(productGender)) {
@@ -156,14 +144,12 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
         }
       }
 
-      // Size filter (mock implementation)
       if (filters.selectedSizes.length > 0) {
         if (!productMatchesSize(product, filters.selectedSizes)) {
           return false;
         }
       }
 
-      // Color filter (mock implementation)
       if (filters.selectedColors.length > 0) {
         if (!productMatchesColor(product, filters.selectedColors)) {
           return false;
@@ -173,7 +159,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
       return true;
     });
 
-    // Sort products
     switch (filters.sortBy) {
       case 'price-low':
         filtered.sort((a, b) => {
@@ -263,7 +248,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   return (
     <div className="min-vh-100 bg-light py-4">
       <div className="container">
-        {/* Header */}
         <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
           <div className="mb-3 mb-lg-0">
             <h1 className="display-6 fw-bold text-dark mb-2">
@@ -281,7 +265,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
           </div>
           
           <div className="d-flex align-items-center gap-3 flex-wrap">
-            {/* View Mode Toggle */}
             <div className="btn-group" role="group">
               <button
                 type="button"
@@ -301,7 +284,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
               </button>
             </div>
 
-            {/* Sort Dropdown */}
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange('sortBy', e.target.value)}
@@ -316,7 +298,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
               <option value="newest">Newest First</option>
             </select>
 
-            {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="btn btn-outline-primary d-flex align-items-center position-relative"
@@ -334,7 +315,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
         </div>
 
         <div className="row">
-          {/* Enhanced Filters Sidebar */}
           {showFilters && (
             <div className="col-lg-3 mb-4">
               <div className="card sticky-top" style={{ top: '100px' }}>
@@ -351,7 +331,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                   )}
                 </div>
                 <div className="card-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-                  {/* Gender Filter */}
                   <div className="mb-4">
                     <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
                       Gender
@@ -375,7 +354,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                     ))}
                   </div>
 
-                  {/* Price Range */}
                   <div className="mb-4">
                     <h6 className="fw-semibold mb-3">Price Range</h6>
                     <div className="row g-2 mb-2">
@@ -412,7 +390,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                     </div>
                   </div>
 
-                  {/* Sizes */}
                   <div className="mb-4">
                     <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
                       Size
@@ -438,7 +415,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
                     </div>
                   </div>
 
-                  {/* Colors */}
                   <div className="mb-4">
                     <h6 className="fw-semibold mb-3 d-flex align-items-center justify-content-between">
                       Color
@@ -478,7 +454,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
             </div>
           )}
 
-          {/* Products Grid */}
           <div className={showFilters ? 'col-lg-9' : 'col-12'}>
             {filteredAndSortedProducts.length === 0 ? (
               <div className="text-center py-5">

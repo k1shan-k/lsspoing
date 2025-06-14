@@ -24,7 +24,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -87,7 +86,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   return (
     <div className="auth-container">
       <div className="auth-card fade-in-up">
-        {/* Header */}
         <div className="text-center">
           <div className="auth-icon primary">
             <LogIn />
@@ -98,7 +96,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
           </p>
         </div>
 
-        {/* Demo Section */}
         <div className="demo-section">
           <div className="d-flex align-items-center mb-3">
             <Info className="me-2" size={20} />
@@ -140,7 +137,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
           ))}
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           {errors.form && (
             <div className="alert alert-danger d-flex align-items-center" role="alert">

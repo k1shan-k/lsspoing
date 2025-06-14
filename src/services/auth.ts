@@ -36,7 +36,6 @@ export interface AuthResponse {
   error?: string;
 }
 
-// Initialize with demo users from JSONPlaceholder-like data
 const initializeDemoUsers = () => {
   const existingUsers = localStorage.getItem(STORAGE_KEY);
   if (!existingUsers) {
@@ -106,7 +105,6 @@ const initializeDemoUsers = () => {
   }
 };
 
-// Fetch users from JSONPlaceholder API
 const fetchUsersFromAPI = async () => {
   try {
     const response = await fetch(`${BASE_URL}/users`);
@@ -114,7 +112,6 @@ const fetchUsersFromAPI = async () => {
     
     const apiUsers = await response.json();
     
-    // Transform API users to our format
     const transformedUsers = apiUsers.slice(0, 5).map((user: any, index: number) => ({
       id: user.id,
       username: user.username.toLowerCase(),
@@ -137,30 +134,26 @@ const fetchUsersFromAPI = async () => {
   }
 };
 
-// Get all users from localStorage
 const getStoredUsers = () => {
   const users = localStorage.getItem(STORAGE_KEY);
   return users ? JSON.parse(users) : [];
 };
 
-// Save users to localStorage
 const saveUsers = (users: any[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
 };
 
-// Generate a realistic JWT-like token
 const generateToken = (userId: number) => {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const payload = btoa(JSON.stringify({ 
     sub: userId, 
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
   }));
   const signature = btoa(`signature_${userId}_${Date.now()}`);
   return `${header}.${payload}.${signature}`;
 };
 
-// Demo credentials for testing
 export const getDemoCredentials = () => [
   { username: 'bret', password: 'demo123' },
   { username: 'antonette', password: 'user123' },
@@ -169,12 +162,10 @@ export const getDemoCredentials = () => [
   { username: 'kamren', password: 'admin123' }
 ];
 
-// Simulate realistic API delay
 const simulateDelay = (ms: number = 1200) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-// Initialize users on first load
 let usersInitialized = false;
 const ensureUsersInitialized = async () => {
   if (!usersInitialized) {
@@ -198,10 +189,9 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
       const userWithToken = {
         ...user,
         token,
-        password: undefined // Don't include password in response
+        password: undefined
       };
 
-      // Store token and user data
       localStorage.setItem(AUTH_TOKEN_KEY, token);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithToken));
       
@@ -231,7 +221,6 @@ export const signup = async (signupData: SignupData): Promise<AuthResponse> => {
     
     const users = getStoredUsers();
     
-    // Check if username or email already exists
     const existingUser = users.find((u: any) => 
       u.username === signupData.username || u.email === signupData.email
     );
@@ -245,7 +234,6 @@ export const signup = async (signupData: SignupData): Promise<AuthResponse> => {
       };
     }
 
-    // Simulate API call to create user
     try {
       const response = await fetch(`${BASE_URL}/users`, {
         method: 'POST',
@@ -272,7 +260,6 @@ export const signup = async (signupData: SignupData): Promise<AuthResponse> => {
       console.warn('API creation failed, proceeding with local storage:', apiError);
     }
 
-    // Create new user locally
     const [firstName, ...lastNameParts] = signupData.name.trim().split(' ');
     const lastName = lastNameParts.join(' ') || '';
     
@@ -289,19 +276,16 @@ export const signup = async (signupData: SignupData): Promise<AuthResponse> => {
       createdAt: new Date().toISOString()
     };
 
-    // Add to users array and save
     users.push(newUser);
     saveUsers(users);
 
-    // Auto-login the new user
     const token = generateToken(newUser.id);
     const userWithToken = {
       ...newUser,
       token,
-      password: undefined // Don't include password in response
+      password: undefined
     };
 
-    // Store token and user data
     localStorage.setItem(AUTH_TOKEN_KEY, token);
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithToken));
 
@@ -343,7 +327,6 @@ export const isAuthenticated = (): boolean => {
   return !!(token && user);
 };
 
-// Verify token with realistic validation
 export const verifyToken = async (): Promise<boolean> => {
   const token = getAuthToken();
   const user = getCurrentUser();
@@ -351,10 +334,8 @@ export const verifyToken = async (): Promise<boolean> => {
   if (!token || !user) return false;
 
   try {
-    // Simulate API call delay
     await simulateDelay(500);
     
-    // Parse JWT-like token
     const parts = token.split('.');
     if (parts.length !== 3) return false;
     
@@ -362,12 +343,10 @@ export const verifyToken = async (): Promise<boolean> => {
       const payload = JSON.parse(atob(parts[1]));
       const now = Math.floor(Date.now() / 1000);
       
-      // Check if token is expired
       if (payload.exp && payload.exp < now) {
         return false;
       }
       
-      // Check if user ID matches
       return payload.sub === user.id;
     } catch (parseError) {
       return false;
@@ -378,12 +357,10 @@ export const verifyToken = async (): Promise<boolean> => {
   }
 };
 
-// Get user profile (simulate API call)
 export const getUserProfile = async (userId: number) => {
   try {
     await simulateDelay(800);
     
-    // Try to fetch from API first
     try {
       const response = await fetch(`${BASE_URL}/users/${userId}`);
       if (response.ok) {
@@ -397,7 +374,6 @@ export const getUserProfile = async (userId: number) => {
       console.warn('API fetch failed, using local data');
     }
     
-    // Fallback to local storage
     const users = getStoredUsers();
     return users.find((u: any) => u.id === userId);
   } catch (error) {
@@ -406,12 +382,10 @@ export const getUserProfile = async (userId: number) => {
   }
 };
 
-// Update user profile
 export const updateUserProfile = async (userId: number, updates: Partial<User>) => {
   try {
     await simulateDelay(1000);
     
-    // Simulate API call
     try {
       const response = await fetch(`${BASE_URL}/users/${userId}`, {
         method: 'PUT',
@@ -428,7 +402,6 @@ export const updateUserProfile = async (userId: number, updates: Partial<User>) 
       console.warn('API update failed, updating locally');
     }
     
-    // Update local storage
     const users = getStoredUsers();
     const userIndex = users.findIndex((u: any) => u.id === userId);
     
@@ -436,7 +409,6 @@ export const updateUserProfile = async (userId: number, updates: Partial<User>) 
       users[userIndex] = { ...users[userIndex], ...updates };
       saveUsers(users);
       
-      // Update current user if it's the same user
       const currentUser = getCurrentUser();
       if (currentUser && currentUser.id === userId) {
         const updatedUser = { ...currentUser, ...updates };
@@ -453,20 +425,17 @@ export const updateUserProfile = async (userId: number, updates: Partial<User>) 
   }
 };
 
-// Get all registered users (for admin purposes)
 export const getAllUsers = () => {
   return getStoredUsers().map((user: any) => ({
     ...user,
-    password: undefined // Don't expose passwords
+    password: undefined
   }));
 };
 
-// Reset to demo users (for testing)
 export const resetToDemo = async () => {
   localStorage.removeItem(STORAGE_KEY);
   usersInitialized = false;
   await fetchUsersFromAPI();
 };
 
-// Initialize users when module loads
 fetchUsersFromAPI();

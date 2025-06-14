@@ -1,7 +1,5 @@
-/* Import Bootstrap */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-/* Custom styles for enhanced UX */
 :root {
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -13,7 +11,6 @@
   --light-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-/* Global styles */
 * {
   transition: all 0.3s ease-in-out;
 }
@@ -24,7 +21,6 @@ body {
   line-height: 1.6;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -42,7 +38,6 @@ body {
   background: #a8b2ba;
 }
 
-/* Utility classes */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -57,7 +52,6 @@ body {
   overflow: hidden;
 }
 
-/* Custom button styles */
 .btn-gradient-primary {
   background: var(--primary-gradient);
   border: none;
@@ -118,7 +112,6 @@ body {
   color: white;
 }
 
-/* Card enhancements */
 .card {
   border: none;
   border-radius: 1rem;
@@ -137,7 +130,6 @@ body {
   font-weight: 600;
 }
 
-/* Navigation styles */
 .navbar {
   background: white !important;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
@@ -177,7 +169,6 @@ body {
   border-radius: 2px;
 }
 
-/* Form styles */
 .form-control {
   border-radius: 0.75rem;
   border: 2px solid #e9ecef;
@@ -202,7 +193,6 @@ body {
   border-radius: 0 0.75rem 0.75rem 0;
 }
 
-/* Auth page styles */
 .auth-container {
   min-height: 100vh;
   background: var(--primary-gradient);
@@ -257,7 +247,6 @@ body {
   color: white;
 }
 
-/* Demo credentials section */
 .demo-section {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(102, 126, 234, 0.1));
   border: 2px solid rgba(102, 126, 234, 0.2);
@@ -284,7 +273,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Product card styles */
 .product-card {
   border: none;
   border-radius: 1rem;
@@ -344,7 +332,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Rating stars */
 .rating-stars {
   color: #ffc107;
 }
@@ -353,7 +340,6 @@ body {
   color: #e9ecef;
 }
 
-/* Loading spinner */
 .loading-spinner {
   width: 48px;
   height: 48px;
@@ -369,7 +355,6 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Hero section */
 .hero-section {
   background: var(--primary-gradient);
   color: white;
@@ -393,7 +378,6 @@ body {
   z-index: 1;
 }
 
-/* Feature cards */
 .feature-card {
   text-align: center;
   padding: 2rem;
@@ -435,7 +419,6 @@ body {
   color: #f7971e;
 }
 
-/* Cart and wishlist styles */
 .cart-item,
 .wishlist-item {
   background: white;
@@ -479,7 +462,6 @@ body {
   text-align: center;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .auth-card {
     padding: 2rem;
@@ -495,7 +477,6 @@ body {
   }
 }
 
-/* Animation classes */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -524,7 +505,6 @@ body {
   animation: fadeIn 0.6s ease-out;
 }
 
-/* Alert styles */
 .alert {
   border: none;
   border-radius: 0.75rem;
@@ -549,7 +529,6 @@ body {
   border-left: 4px solid #11998e;
 }
 
-/* Badge styles */
 .badge {
   font-weight: 600;
   padding: 0.5rem 0.75rem;
@@ -568,7 +547,6 @@ body {
   background: var(--success-gradient);
 }
 
-/* Modal enhancements */
 .modal-content {
   border: none;
   border-radius: 1rem;

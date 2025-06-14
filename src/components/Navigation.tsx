@@ -45,7 +45,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white sticky-top">
       <div className="container">
-        {/* Brand */}
         <button 
           className="navbar-brand btn btn-link text-decoration-none p-0"
           onClick={() => onViewChange('home')}
@@ -54,7 +53,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
           <span className="fw-bold fs-4">ShopCart</span>
         </button>
 
-        {/* Mobile menu button */}
         <button
           className="navbar-toggler border-0"
           type="button"
@@ -63,10 +61,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Navigation items */}
         <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {/* Main Navigation */}
             {mainNavigationItems.map((item) => (
               <li key={item.id} className="nav-item">
                 <button
@@ -83,7 +79,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
               </li>
             ))}
 
-            {/* Products Dropdown */}
             <li className="nav-item dropdown">
               <button
                 className={`nav-link dropdown-toggle btn btn-link text-decoration-none ${
@@ -113,7 +108,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
             </li>
           </ul>
 
-          {/* Search bar */}
           <form className="d-flex me-3 flex-grow-1" style={{ maxWidth: '400px' }} onSubmit={handleSearch}>
             <div className="input-group">
               <input
@@ -129,9 +123,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
             </div>
           </form>
 
-          {/* Right side actions */}
           <div className="d-flex align-items-center gap-2">
-            {/* Wishlist */}
             <button
               className={`btn btn-link text-decoration-none position-relative ${
                 currentView === 'wishlist' ? 'text-primary' : 'text-muted'
@@ -142,7 +134,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
               <span className="d-none d-sm-inline ms-1">Wishlist</span>
             </button>
 
-            {/* Cart */}
             <button
               className={`btn btn-link text-decoration-none position-relative ${
                 currentView === 'cart' ? 'text-primary' : 'text-muted'
@@ -158,7 +149,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
               )}
             </button>
 
-            {/* User actions */}
             {isAuthenticated ? (
               <div className="d-flex align-items-center gap-2">
                 <div className="d-none d-sm-flex align-items-center">

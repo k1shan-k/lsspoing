@@ -25,7 +25,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -34,14 +33,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     } else if (formData.name.trim().length < 2) {
       newErrors.name = 'Name must be at least 2 characters';
     }
 
-    // Username validation
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
     } else if (formData.username.trim().length < 3) {
@@ -50,21 +47,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       newErrors.username = 'Username can only contain letters, numbers, and underscores';
     }
 
-    // Email validation
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-    // Verify password validation
     if (!formData.verifyPassword) {
       newErrors.verifyPassword = 'Please verify your password';
     } else if (formData.password !== formData.verifyPassword) {
@@ -94,7 +88,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
       });
 
       if (result.success) {
-        // Show success message and redirect to home
         onViewChange('home');
       } else {
         setErrors({ form: result.error || 'Registration failed. Please try again.' });
@@ -110,7 +103,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
   return (
     <div className="auth-container">
       <div className="auth-card fade-in-up">
-        {/* Header */}
         <div className="text-center">
           <div className="auth-icon secondary">
             <UserPlus />
@@ -121,7 +113,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onViewChange }) => {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           {errors.form && (
             <div className="alert alert-danger d-flex align-items-center" role="alert">
