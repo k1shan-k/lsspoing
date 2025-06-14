@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn, User, Info } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, LogIn, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -8,7 +8,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -29,8 +29,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.username) {
-      newErrors.username = 'Username is required';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
     }
 
     if (!formData.password) {
@@ -49,15 +51,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     setIsLoading(true);
     
     try {
-      const success = await login(formData.username, formData.password);
+      const success = await login(formData.email, formData.password);
       
       if (success) {
         onViewChange('home');
       } else {
-        setErrors({ form: 'Invalid username or password. Please try the demo credentials below.' });
+        setErrors({ form: 'Invalid email or password. Please try the demo credentials below.' });
       }
     } catch (error) {
-      setErrors({ form: 'Invalid username or password. Please try the demo credentials below.' });
+      setErrors({ form: 'Invalid email or password. Please try the demo credentials below.' });
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +67,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
 
   const useDemoCredentials = () => {
     setFormData({
-      username: 'kminchelle',
+      email: 'kminchelle@qq.com',
       password: '0lelplR'
     });
     setErrors({});
@@ -115,28 +117,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             )}
 
             <div className="space-y-4">
-              {/* Username */}
+              {/* Email */}
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={formData.username}
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Try: kminchelle"
+                    placeholder="Try: kminchelle@qq.com"
                   />
                 </div>
-                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
 
               {/* Password */}

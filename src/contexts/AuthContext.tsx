@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, SignupData } from '../types';
-import { loginUser, getCurrentUser, DummyUser } from '../services/auth';
+import { loginUser, getCurrentUser, DummyUser, getAllUsers } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: SignupData) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -37,8 +37,25 @@ const convertDummyUserToUser = (dummyUser: DummyUser): User => ({
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailToUsernameMap, setEmailToUsernameMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    // Load email to username mapping from DummyJSON users
+    const loadUserMapping = async () => {
+      try {
+        const { users } = await getAllUsers();
+        const mapping: Record<string, string> = {};
+        users.forEach(user => {
+          mapping[user.email] = user.username;
+        });
+        setEmailToUsernameMap(mapping);
+      } catch (error) {
+        console.error('Failed to load user mapping:', error);
+      }
+    };
+
+    loadUserMapping();
+
     // Check for stored token on component mount
     const checkStoredAuth = async () => {
       const storedToken = localStorage.getItem('authToken');
@@ -67,12 +84,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkStoredAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
       
       // First try DummyJSON login
       try {
+        // Convert email to username if we have the mapping
+        const username = emailToUsernameMap[email] || email;
+        
         const loginResponse = await loginUser(username, password);
         
         // Get full user data
@@ -88,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // If DummyJSON login fails, try local users (for signup users)
         const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
         const localUser = localUsers.find((u: any) => 
-          (u.email === username || u.name === username) && u.password === password
+          u.email === email && u.password === password
         );
         
         if (localUser) {
