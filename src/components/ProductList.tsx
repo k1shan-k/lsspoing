@@ -52,6 +52,14 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
     { value: 'unisex', label: 'Unisex' },
   ];
 
+  // Move getProductGender function before its usage
+  const getProductGender = (category: string): string => {
+    if (category.includes('mens') || category.includes('men')) return 'men';
+    if (category.includes('womens') || category.includes('women')) return 'women';
+    if (category.includes('kids') || category.includes('children')) return 'kids';
+    return 'unisex';
+  };
+
   useEffect(() => {
     loadProducts();
   }, [category, searchQuery]);
@@ -152,13 +160,6 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
 
     return filtered;
   }, [products, filters]);
-
-  const getProductGender = (category: string): string => {
-    if (category.includes('mens') || category.includes('men')) return 'men';
-    if (category.includes('womens') || category.includes('women')) return 'women';
-    if (category.includes('kids') || category.includes('children')) return 'kids';
-    return 'unisex';
-  };
 
   const handleFilterChange = (filterType: string, value: any) => {
     setFilters(prev => ({
