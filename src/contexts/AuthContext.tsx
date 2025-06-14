@@ -117,8 +117,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return true;
         }
         
-        // If both fail, throw the original error
-        throw dummyError;
+        // If both DummyJSON and local login fail, throw a more specific error
+        throw new Error('Invalid email or password');
       }
     } catch (error) {
       console.error('Login failed:', error instanceof Error ? error.message : 'Unknown error');
