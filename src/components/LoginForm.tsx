@@ -63,14 +63,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
     }
   };
 
-  // Demo credentials helper
-  const fillDemoCredentials = () => {
-    setFormData({
-      username: 'kminchelle',
-      password: '0lelplR'
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -84,23 +76,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             <p className="mt-2 text-sm text-gray-600">
               Sign in to your account to continue shopping
             </p>
-          </div>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>Demo Credentials:</strong>
-            </p>
-            <p className="text-xs text-blue-700 mb-2">
-              Username: kminchelle | Password: 0lelplR
-            </p>
-            <button
-              type="button"
-              onClick={fillDemoCredentials}
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
-            >
-              Click to fill demo credentials
-            </button>
           </div>
 
           {/* Form */}
