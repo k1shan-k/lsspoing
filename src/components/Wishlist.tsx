@@ -16,30 +16,36 @@ const Wishlist: React.FC<WishlistProps> = ({ onViewChange, onProductClick }) => 
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <div className="mx-auto h-16 w-16 bg-pink-100 rounded-full flex items-center justify-center mb-6">
-              <Heart className="h-8 w-8 text-pink-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Your Wishlist</h2>
-            <p className="text-gray-600 mb-6">
-              Please log in to view and manage your favorite items.
-            </p>
-            <div className="space-y-3">
-              <button
-                onClick={() => onViewChange('login')}
-                className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors"
-              >
-                <LogIn className="h-5 w-5 mr-2" />
-                Log In
-              </button>
-              <button
-                onClick={() => onViewChange('signup')}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors"
-              >
-                Create Account
-              </button>
+      <div className="min-vh-100 bg-light d-flex align-items-center justify-content-center py-5">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-6 col-lg-5">
+              <div className="card text-center">
+                <div className="card-body py-5">
+                  <div className="auth-icon secondary mb-4">
+                    <Heart size={32} />
+                  </div>
+                  <h2 className="h3 fw-bold text-dark mb-3">Access Your Wishlist</h2>
+                  <p className="text-muted mb-4">
+                    Please log in to view and manage your favorite items.
+                  </p>
+                  <div className="d-grid gap-3">
+                    <button
+                      onClick={() => onViewChange('login')}
+                      className="btn btn-gradient-secondary btn-lg d-flex align-items-center justify-content-center"
+                    >
+                      <LogIn className="me-2" size={20} />
+                      Log In
+                    </button>
+                    <button
+                      onClick={() => onViewChange('signup')}
+                      className="btn btn-outline-primary btn-lg"
+                    >
+                      Create Account
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -49,30 +55,32 @@ const Wishlist: React.FC<WishlistProps> = ({ onViewChange, onProductClick }) => 
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="text-center">
-              <div className="mx-auto h-16 w-16 bg-pink-100 rounded-full flex items-center justify-center mb-6">
-                <Star className="h-8 w-8 text-pink-600" />
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Wishlist</h1>
-              <p className="text-gray-600 mb-8">
-                Hello {user?.name}! Save your favorite items here.
-              </p>
-              <div className="max-w-md mx-auto">
-                <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                  <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-sm">
-                    Your wishlist is empty. Start browsing to add items you love!
+      <div className="min-vh-100 bg-light py-5">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-8">
+              <div className="card text-center">
+                <div className="card-body py-5">
+                  <div className="feature-icon warning mb-4 mx-auto">
+                    <Star size={32} />
+                  </div>
+                  <h1 className="display-6 fw-bold text-dark mb-3">Your Wishlist</h1>
+                  <p className="text-muted mb-4">
+                    Hello {user?.firstName}! Save your favorite items here.
                   </p>
+                  <div className="bg-light rounded-3 p-4 mb-4 mx-auto" style={{ maxWidth: '300px' }}>
+                    <Heart className="text-muted mb-3" size={48} />
+                    <p className="text-muted small mb-0">
+                      Your wishlist is empty. Start browsing to add items you love!
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onViewChange('products')}
+                    className="btn btn-gradient-secondary btn-lg px-4"
+                  >
+                    Discover Products
+                  </button>
                 </div>
-                <button
-                  onClick={() => onViewChange('products')}
-                  className="w-full px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-colors"
-                >
-                  Discover Products
-                </button>
               </div>
             </div>
           </div>
@@ -82,92 +90,94 @@ const Wishlist: React.FC<WishlistProps> = ({ onViewChange, onProductClick }) => 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
-          <p className="text-gray-600">{wishlistItems.length} items</p>
+    <div className="min-vh-100 bg-light py-4">
+      <div className="container">
+        <div className="d-flex align-items-center justify-content-between mb-4">
+          <h1 className="display-6 fw-bold text-dark">My Wishlist</h1>
+          <span className="badge bg-primary fs-6">{wishlistItems.length} items</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="row g-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4">
           {wishlistItems.map((item) => {
             const discountedPrice = item.product.price * (1 - item.product.discountPercentage / 100);
             
             return (
-              <div key={item.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <div className="relative">
-                  <img
-                    src={item.product.thumbnail}
-                    alt={item.product.title}
-                    className="w-full h-48 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-                    onClick={() => onProductClick(item.product.id)}
-                  />
-                  {item.product.discountPercentage > 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      -{Math.round(item.product.discountPercentage)}%
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <h3 
-                    className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
-                    onClick={() => onProductClick(item.product.id)}
-                  >
-                    {item.product.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {item.product.description}
-                  </p>
-
-                  <div className="flex items-center mb-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(item.product.rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600 ml-2">({item.product.rating})</span>
+              <div key={item.id} className="col">
+                <div className="wishlist-item h-100">
+                  <div className="position-relative mb-3">
+                    <img
+                      src={item.product.thumbnail}
+                      alt={item.product.title}
+                      className="img-fluid rounded w-100"
+                      style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
+                      onClick={() => onProductClick(item.product.id)}
+                    />
+                    {item.product.discountPercentage > 0 && (
+                      <div className="product-badge">
+                        -{Math.round(item.product.discountPercentage)}%
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-gray-900">
-                        ${discountedPrice.toFixed(2)}
-                      </span>
-                      {item.product.discountPercentage > 0 && (
-                        <span className="text-sm text-gray-500 line-through">
-                          ${item.product.price.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        addToCart(item.product);
-                        removeFromWishlist(item.product.id);
-                      }}
-                      className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-sm"
+                  <div className="d-flex flex-column h-100">
+                    <h5 
+                      className="fw-semibold text-dark mb-2 line-clamp-2"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => onProductClick(item.product.id)}
                     >
-                      <ShoppingCart className="h-4 w-4 mr-1" />
-                      Move to Cart
-                    </button>
+                      {item.product.title}
+                    </h5>
                     
-                    <button
-                      onClick={() => removeFromWishlist(item.product.id)}
-                      className="px-3 py-2 border border-red-300 text-red-600 font-medium rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <p className="text-muted small line-clamp-2 mb-3">
+                      {item.product.description}
+                    </p>
+
+                    <div className="d-flex align-items-center mb-3">
+                      <div className="rating-stars me-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={16}
+                            className={i < Math.floor(item.product.rating) ? '' : 'star-empty'}
+                            fill={i < Math.floor(item.product.rating) ? 'currentColor' : 'none'}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-muted small">({item.product.rating})</span>
+                    </div>
+
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="h5 mb-0 fw-bold text-dark">
+                          ${discountedPrice.toFixed(2)}
+                        </span>
+                        {item.product.discountPercentage > 0 && (
+                          <span className="text-muted text-decoration-line-through small">
+                            ${item.product.price.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="d-flex gap-2 mt-auto">
+                      <button
+                        onClick={() => {
+                          addToCart(item.product);
+                          removeFromWishlist(item.product.id);
+                        }}
+                        className="btn btn-gradient-primary flex-grow-1 d-flex align-items-center justify-content-center"
+                      >
+                        <ShoppingCart size={16} className="me-1" />
+                        Move to Cart
+                      </button>
+                      
+                      <button
+                        onClick={() => removeFromWishlist(item.product.id)}
+                        className="btn btn-outline-danger"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

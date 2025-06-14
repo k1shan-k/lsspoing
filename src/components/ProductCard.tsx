@@ -31,80 +31,73 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) =>
   };
 
   return (
-    <div
-      onClick={() => onProductClick(product.id)}
-      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
-    >
-      <div className="relative">
+    <div className="product-card card h-100" onClick={() => onProductClick(product.id)} style={{ cursor: 'pointer' }}>
+      <div className="position-relative overflow-hidden">
         <img
           src={product.thumbnail}
           alt={product.title}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="product-image card-img-top w-100"
         />
         {product.discountPercentage > 0 && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
+          <div className="product-badge">
             -{Math.round(product.discountPercentage)}%
           </div>
         )}
         <button
           onClick={handleWishlistToggle}
-          className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
-            inWishlist
-              ? 'bg-red-500 text-white'
-              : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-500'
-          }`}
+          className={`wishlist-btn ${inWishlist ? 'active' : ''}`}
+          aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
+          <Heart size={16} className={inWishlist ? 'fill-current' : ''} />
         </button>
       </div>
 
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+      <div className="card-body d-flex flex-column">
+        <h5 className="card-title line-clamp-2 mb-2 text-dark fw-semibold">
           {product.title}
-        </h3>
+        </h5>
         
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="card-text text-muted small line-clamp-2 mb-3">
           {product.description}
         </p>
 
-        <div className="flex items-center mb-3">
-          <div className="flex items-center">
+        <div className="d-flex align-items-center mb-3">
+          <div className="rating-stars me-2">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(product.rating)
-                    ? 'text-yellow-400 fill-current'
-                    : 'text-gray-300'
-                }`}
+                size={16}
+                className={i < Math.floor(product.rating) ? '' : 'star-empty'}
+                fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
               />
             ))}
           </div>
-          <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+          <span className="text-muted small">({product.rating})</span>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-gray-900">
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <div className="d-flex align-items-center gap-2">
+            <span className="h5 mb-0 fw-bold text-dark">
               ${discountedPrice.toFixed(2)}
             </span>
             {product.discountPercentage > 0 && (
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-muted text-decoration-line-through small">
                 ${product.price.toFixed(2)}
               </span>
             )}
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="badge bg-light text-dark">
             Stock: {product.stock}
           </span>
         </div>
 
         <button
           onClick={handleAddToCart}
-          className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          className="btn btn-gradient-primary w-100 d-flex align-items-center justify-content-center mt-auto"
+          disabled={product.stock === 0}
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          Add to Cart
+          <ShoppingCart size={16} className="me-2" />
+          {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
         </button>
       </div>
     </div>

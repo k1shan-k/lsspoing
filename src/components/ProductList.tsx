@@ -131,12 +131,14 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-vh-100 bg-light d-flex align-items-center justify-content-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
           <button
             onClick={loadProducts}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="btn btn-gradient-primary"
           >
             Try Again
           </button>
@@ -146,38 +148,36 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-vh-100 bg-light py-4">
+      <div className="container">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
+          <div className="mb-3 mb-lg-0">
+            <h1 className="display-6 fw-bold text-dark mb-2">
               {searchQuery ? `Search Results for "${searchQuery}"` : 
                category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All Products'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted mb-0">
               {filteredAndSortedProducts.length} products found
             </p>
           </div>
           
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <div className="d-flex align-items-center gap-3">
             {/* View Mode Toggle */}
-            <div className="flex bg-gray-200 rounded-lg p-1">
+            <div className="btn-group" role="group">
               <button
+                type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-300'
-                }`}
+                className={`btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-secondary'}`}
               >
-                <Grid className="h-4 w-4" />
+                <Grid size={16} />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-300'
-                }`}
+                className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-secondary'}`}
               >
-                <List className="h-4 w-4" />
+                <List size={16} />
               </button>
             </div>
 
@@ -185,7 +185,8 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
             <select
               value={filters.sortBy}
               onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-select"
+              style={{ width: 'auto' }}
             >
               <option value="default">Sort by Default</option>
               <option value="price-low">Price: Low to High</option>
@@ -197,95 +198,106 @@ const ProductList: React.FC<ProductListProps> = ({ category, searchQuery, onProd
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="btn btn-outline-primary d-flex align-items-center"
             >
-              <Filter className="h-4 w-4 mr-2" />
+              <Filter size={16} className="me-2" />
               Filters
-              <ChevronDown className={`h-4 w-4 ml-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              <ChevronDown size={16} className={`ms-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="row">
           {/* Filters Sidebar */}
           {showFilters && (
-            <div className="lg:w-64 bg-white rounded-xl shadow-lg p-6 h-fit">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-              
-              {/* Price Range */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Price Range</h4>
-                <div className="space-y-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1000"
-                    value={filters.priceRange[1]}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev,
-                      priceRange: [prev.priceRange[0], parseInt(e.target.value)]
-                    }))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>${filters.priceRange[0]}</span>
-                    <span>${filters.priceRange[1]}</span>
+            <div className="col-lg-3 mb-4">
+              <div className="card">
+                <div className="card-header">
+                  <h5 className="mb-0">Filters</h5>
+                </div>
+                <div className="card-body">
+                  {/* Price Range */}
+                  <div className="mb-4">
+                    <h6 className="fw-semibold mb-3">Price Range</h6>
+                    <input
+                      type="range"
+                      className="form-range"
+                      min="0"
+                      max="1000"
+                      value={filters.priceRange[1]}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        priceRange: [prev.priceRange[0], parseInt(e.target.value)]
+                      }))}
+                    />
+                    <div className="d-flex justify-content-between small text-muted">
+                      <span>${filters.priceRange[0]}</span>
+                      <span>${filters.priceRange[1]}</span>
+                    </div>
                   </div>
+
+                  {/* Brands */}
+                  {availableBrands.length > 0 && (
+                    <div className="mb-4">
+                      <h6 className="fw-semibold mb-3">Brands</h6>
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {availableBrands.map(brand => (
+                          <div key={brand} className="form-check mb-2">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`brand-${brand}`}
+                              checked={filters.selectedBrands.includes(brand)}
+                              onChange={() => handleBrandToggle(brand)}
+                            />
+                            <label className="form-check-label small" htmlFor={`brand-${brand}`}>
+                              {brand}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Clear Filters */}
+                  <button
+                    onClick={() => setFilters({
+                      priceRange: [0, 1000],
+                      selectedBrands: [],
+                      sortBy: 'default',
+                    })}
+                    className="btn btn-outline-primary w-100"
+                  >
+                    Clear All Filters
+                  </button>
                 </div>
               </div>
-
-              {/* Brands */}
-              {availableBrands.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3">Brands</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {availableBrands.map(brand => (
-                      <label key={brand} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.selectedBrands.includes(brand)}
-                          onChange={() => handleBrandToggle(brand)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{brand}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Clear Filters */}
-              <button
-                onClick={() => setFilters({
-                  priceRange: [0, 1000],
-                  selectedBrands: [],
-                  sortBy: 'default',
-                })}
-                className="w-full px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                Clear All Filters
-              </button>
             </div>
           )}
 
           {/* Products Grid */}
-          <div className="flex-1">
+          <div className={showFilters ? 'col-lg-9' : 'col-12'}>
             {filteredAndSortedProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+              <div className="text-center py-5">
+                <div className="card">
+                  <div className="card-body py-5">
+                    <h5 className="text-muted">No products found matching your criteria.</h5>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className={`grid gap-6 ${
+              <div className={`row g-4 ${
                 viewMode === 'grid' 
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                  : 'grid-cols-1'
+                  ? 'row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4' 
+                  : 'row-cols-1'
               }`}>
                 {filteredAndSortedProducts.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onProductClick={onProductClick}
-                  />
+                  <div key={product.id} className="col">
+                    <ProductCard
+                      product={product}
+                      onProductClick={onProductClick}
+                    />
+                  </div>
                 ))}
               </div>
             )}
