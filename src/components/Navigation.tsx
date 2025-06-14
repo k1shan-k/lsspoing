@@ -39,168 +39,136 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, onSe
   ];
 
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <Store className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">ShopCart</span>
-          </div>
+    <nav className="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+      <div className="container">
+        {/* Brand */}
+        <button 
+          className="navbar-brand btn btn-link text-decoration-none p-0"
+          onClick={() => onViewChange('home')}
+        >
+          <Store className="me-2" size={24} />
+          <span className="fw-bold fs-4">ShopCart</span>
+        </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-6">
+        {/* Mobile menu button */}
+        <button
+          className="navbar-toggler border-0"
+          type="button"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Navigation items */}
+        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             {navigationItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onViewChange(item.id)}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currentView === item.id
-                    ? 'text-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-              >
-                {item.label}
-              </button>
+              <li key={item.id} className="nav-item">
+                <button
+                  className={`nav-link btn btn-link text-decoration-none ${
+                    currentView === item.id ? 'active' : ''
+                  }`}
+                  onClick={() => {
+                    onViewChange(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  {item.label}
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Search Bar */}
-          <div className="hidden md:block flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="relative">
+          {/* Search bar */}
+          <form className="d-flex me-3 flex-grow-1" style={{ maxWidth: '400px' }} onSubmit={handleSearch}>
+            <div className="input-group">
               <input
                 type="text"
+                className="form-control"
+                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </form>
-          </div>
+              <button className="btn btn-outline-secondary" type="submit">
+                <Search size={20} />
+              </button>
+            </div>
+          </form>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-4">
+          {/* Right side actions */}
+          <div className="d-flex align-items-center gap-2">
             {/* Wishlist */}
             <button
-              onClick={() => onViewChange('wishlist')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentView === 'wishlist'
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              className={`btn btn-link text-decoration-none position-relative ${
+                currentView === 'wishlist' ? 'text-primary' : 'text-muted'
               }`}
+              onClick={() => onViewChange('wishlist')}
             >
-              <Heart className="h-5 w-5" />
-              <span className="hidden sm:inline">Wishlist</span>
+              <Heart size={20} />
+              <span className="d-none d-sm-inline ms-1">Wishlist</span>
             </button>
 
             {/* Cart */}
             <button
-              onClick={() => onViewChange('cart')}
-              className={`relative flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentView === 'cart'
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              className={`btn btn-link text-decoration-none position-relative ${
+                currentView === 'cart' ? 'text-primary' : 'text-muted'
               }`}
+              onClick={() => onViewChange('cart')}
             >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="hidden sm:inline">Cart</span>
+              <ShoppingCart size={20} />
+              <span className="d-none d-sm-inline ms-1">Cart</span>
               {cartItemsCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {cartItemsCount}
                 </span>
               )}
             </button>
 
-            {/* User Actions */}
+            {/* User actions */}
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <div className="hidden sm:flex items-center space-x-2">
-                  <User className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-900">
-                    Hi, {user?.name}
+              <div className="d-flex align-items-center gap-2">
+                <div className="d-none d-sm-flex align-items-center">
+                  <img
+                    src={user?.image || `https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&background=667eea&color=fff`}
+                    alt="Profile"
+                    className="rounded-circle me-2"
+                    width="32"
+                    height="32"
+                  />
+                  <span className="text-muted small">
+                    Hi, {user?.firstName}
                   </span>
                 </div>
                 <button
                   onClick={logout}
-                  className="flex items-center space-x-1 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                  className="btn btn-outline-danger btn-sm d-flex align-items-center"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline text-sm font-medium">Logout</span>
+                  <LogOut size={16} className="me-1" />
+                  <span className="d-none d-sm-inline">Logout</span>
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="d-flex gap-2">
                 <button
                   onClick={() => onViewChange('login')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentView === 'login'
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                  className={`btn btn-outline-primary btn-sm ${
+                    currentView === 'login' ? 'active' : ''
                   }`}
                 >
                   Login
                 </button>
                 <button
                   onClick={() => onViewChange('signup')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    currentView === 'signup'
-                      ? 'text-white bg-blue-600'
-                      : 'text-white bg-blue-500 hover:bg-blue-600'
+                  className={`btn btn-gradient-primary btn-sm ${
+                    currentView === 'signup' ? 'active' : ''
                   }`}
                 >
                   Sign Up
                 </button>
               </div>
             )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4">
-            <div className="space-y-2">
-              {navigationItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    onViewChange(item.id);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentView === item.id
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Mobile Search */}
-            <div className="mt-4 md:hidden">
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
