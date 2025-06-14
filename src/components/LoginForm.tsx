@@ -76,172 +76,158 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <LogIn className="h-6 w-6 text-blue-600" />
-            </div>
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome back</h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Sign in to your account to continue shopping
-            </p>
-          </div>
+    <div className="auth-container">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-md-6 col-lg-5">
+            <div className="auth-card fade-in-up">
+              {/* Header */}
+              <div className="text-center mb-4">
+                <div className="auth-icon primary">
+                  <LogIn />
+                </div>
+                <h2 className="h3 fw-bold text-dark mb-2">Welcome back</h2>
+                <p className="text-muted">Sign in to your account to continue shopping</p>
+              </div>
 
-          {/* Demo Credentials Info */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-blue-800">Demo Accounts Available</h3>
-                <p className="mt-1 text-sm text-blue-700">
-                  Use any of the demo credentials below to explore the application
-                </p>
+              {/* Demo Credentials Info */}
+              <div className="demo-credentials">
+                <div className="d-flex align-items-start">
+                  <Info className="text-primary me-3 mt-1" size={20} />
+                  <div className="flex-grow-1">
+                    <h6 className="fw-semibold text-primary mb-1">Demo Accounts Available</h6>
+                    <p className="small text-muted mb-2">
+                      Use any of the demo credentials below to explore the application
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowDemoCredentials(!showDemoCredentials)}
+                      className="btn btn-link p-0 text-primary text-decoration-underline small"
+                    >
+                      {showDemoCredentials ? 'Hide' : 'Show'} demo credentials
+                    </button>
+                  </div>
+                </div>
+                
+                {showDemoCredentials && (
+                  <div className="mt-3" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    {demoCredentials.slice(0, 5).map((cred, index) => (
+                      <div key={index} className="demo-credential-item">
+                        <div className="flex-grow-1">
+                          <div className="fw-semibold small">{cred.username}</div>
+                          <div className="text-muted small">{cred.password}</div>
+                        </div>
+                        <div className="d-flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(cred.username)}
+                            className="btn btn-sm btn-outline-secondary p-1"
+                            title="Copy username"
+                          >
+                            <Copy size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => useDemoCredentials(cred.username, cred.password)}
+                            className="btn btn-sm btn-primary px-2 py-1"
+                          >
+                            Use
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                {errors.form && (
+                  <div className="alert alert-danger d-flex align-items-center" role="alert">
+                    <AlertCircle size={16} className="me-2" />
+                    <div>{errors.form}</div>
+                  </div>
+                )}
+
+                <div className="mb-3">
+                  <label htmlFor="username" className="form-label fw-semibold">Username</label>
+                  <div className="position-relative">
+                    <User className="position-absolute top-50 translate-middle-y ms-3 text-muted" size={20} />
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      value={formData.username}
+                      onChange={handleChange}
+                      className={`form-control form-control-custom ps-5 ${
+                        errors.username ? 'form-control-error' : ''
+                      }`}
+                      placeholder="Try: Bret"
+                    />
+                  </div>
+                  {errors.username && <div className="text-danger small mt-1">{errors.username}</div>}
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="password" className="form-label fw-semibold">Password</label>
+                  <div className="position-relative">
+                    <Lock className="position-absolute top-50 translate-middle-y ms-3 text-muted" size={20} />
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleChange}
+                      className={`form-control form-control-custom ps-5 pe-5 ${
+                        errors.password ? 'form-control-error' : ''
+                      }`}
+                      placeholder="Try: password123"
+                    />
+                    <button
+                      type="button"
+                      className="btn position-absolute top-50 translate-middle-y end-0 me-3 p-0 border-0 bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="text-muted" size={20} />
+                      ) : (
+                        <Eye className="text-muted" size={20} />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => setShowDemoCredentials(!showDemoCredentials)}
-                  className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500 underline"
+                  type="submit"
+                  disabled={isLoading}
+                  className="btn btn-custom-primary w-100 py-3 mb-3"
                 >
-                  {showDemoCredentials ? 'Hide' : 'Show'} demo credentials
+                  {isLoading ? (
+                    <div className="d-flex align-items-center justify-content-center">
+                      <div className="loading-spinner me-2" style={{ width: '16px', height: '16px' }}></div>
+                      Signing in...
+                    </div>
+                  ) : (
+                    'Sign In'
+                  )}
                 </button>
-              </div>
+
+                <div className="text-center">
+                  <p className="text-muted mb-0">
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => onViewChange('signup')}
+                      className="btn btn-link p-0 text-primary text-decoration-underline"
+                    >
+                      Sign up here
+                    </button>
+                  </p>
+                </div>
+              </form>
             </div>
-            
-            {showDemoCredentials && (
-              <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
-                {demoCredentials.slice(0, 5).map((cred, index) => (
-                  <div key={index} className="flex items-center justify-between bg-white rounded p-2 text-sm">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{cred.username}</div>
-                      <div className="text-gray-600">{cred.password}</div>
-                    </div>
-                    <div className="flex space-x-1">
-                      <button
-                        type="button"
-                        onClick={() => copyToClipboard(cred.username)}
-                        className="p-1 text-gray-400 hover:text-gray-600"
-                        title="Copy username"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => useDemoCredentials(cred.username, cred.password)}
-                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                      >
-                        Use
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-
-          {/* Form */}
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {errors.form && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <div className="flex items-center">
-                  <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
-                  <p className="text-sm text-red-600">{errors.form}</p>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {/* Username */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="Try: Bret"
-                  />
-                </div>
-                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
-              </div>
-
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="Try: password123"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Signing in...
-                </div>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-
-            {/* Sign up link */}
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => onViewChange('signup')}
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-                >
-                  Sign up here
-                </button>
-              </p>
-            </div>
-          </form>
         </div>
       </div>
     </div>

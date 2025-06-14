@@ -10,81 +10,93 @@ const Home: React.FC<HomeProps> = ({ onViewChange }) => {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Welcome to ShopCart
-              {isAuthenticated && (
-                <span className="block text-2xl md:text-3xl font-normal mt-2 text-blue-100">
-                  Hello, {user?.name}!
-                </span>
-              )}
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Discover amazing products, create your wishlist, and enjoy seamless shopping experience
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => onViewChange('cart')}
-                className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
-              >
-                <ShoppingBag className="h-5 w-5 mr-2" />
-                View Cart
-              </button>
-              <button
-                onClick={() => onViewChange('wishlist')}
-                className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors flex items-center justify-center"
-              >
-                <Heart className="h-5 w-5 mr-2" />
-                My Wishlist
-              </button>
+      <div className="hero-section">
+        <div className="container">
+          <div className="hero-content text-center">
+            <div className="row justify-content-center">
+              <div className="col-lg-8">
+                <h1 className="display-3 fw-bold mb-4 fade-in-up">
+                  Welcome to ShopCart
+                  {isAuthenticated && (
+                    <div className="h2 fw-normal mt-3 opacity-75">
+                      Hello, {user?.name}!
+                    </div>
+                  )}
+                </h1>
+                <p className="lead mb-5 opacity-90 slide-in-right">
+                  Discover amazing products, create your wishlist, and enjoy seamless shopping experience
+                </p>
+                <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                  <button
+                    onClick={() => onViewChange('cart')}
+                    className="btn btn-light btn-lg px-4 py-3 d-flex align-items-center justify-content-center"
+                    style={{ borderRadius: '12px', fontWeight: '600' }}
+                  >
+                    <ShoppingBag className="me-2" size={20} />
+                    View Cart
+                  </button>
+                  <button
+                    onClick={() => onViewChange('wishlist')}
+                    className="btn btn-outline-light btn-lg px-4 py-3 d-flex align-items-center justify-content-center"
+                    style={{ borderRadius: '12px', fontWeight: '600' }}
+                  >
+                    <Heart className="me-2" size={20} />
+                    My Wishlist
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose ShopCart?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+      <div className="py-5" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
+        <div className="container py-5">
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold text-dark mb-4">Why Choose ShopCart?</h2>
+            <p className="lead text-muted">
               Experience the best in online shopping with our premium features and exceptional service
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                <Store className="h-8 w-8 text-blue-600" />
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="feature-card">
+                <div className="feature-icon primary">
+                  <Store />
+                </div>
+                <h4 className="fw-bold mb-3">Premium Products</h4>
+                <p className="text-muted">
+                  Curated selection of high-quality products from trusted brands worldwide
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Premium Products</h3>
-              <p className="text-gray-600">
-                Curated selection of high-quality products from trusted brands worldwide
-              </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                <Truck className="h-8 w-8 text-green-600" />
+            <div className="col-md-4">
+              <div className="feature-card">
+                <div className="feature-icon success">
+                  <Truck />
+                </div>
+                <h4 className="fw-bold mb-3">Fast Delivery</h4>
+                <p className="text-muted">
+                  Quick and reliable shipping to your doorstep with real-time tracking
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Fast Delivery</h3>
-              <p className="text-gray-600">
-                Quick and reliable shipping to your doorstep with real-time tracking
-              </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="mx-auto h-16 w-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
-                <Award className="h-8 w-8 text-purple-600" />
+            <div className="col-md-4">
+              <div className="feature-card">
+                <div className="feature-icon secondary">
+                  <Award />
+                </div>
+                <h4 className="fw-bold mb-3">Best Service</h4>
+                <p className="text-muted">
+                  24/7 customer support and hassle-free returns for your peace of mind
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Best Service</h3>
-              <p className="text-gray-600">
-                24/7 customer support and hassle-free returns for your peace of mind
-              </p>
             </div>
           </div>
         </div>
@@ -92,26 +104,32 @@ const Home: React.FC<HomeProps> = ({ onViewChange }) => {
 
       {/* CTA Section */}
       {!isAuthenticated && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Start Shopping?</h2>
-            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied customers and discover your next favorite product
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => onViewChange('signup')}
-                className="px-8 py-4 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center"
-              >
-                <Users className="h-5 w-5 mr-2" />
-                Create Account
-              </button>
-              <button
-                onClick={() => onViewChange('login')}
-                className="px-8 py-4 bg-indigo-700 text-white font-semibold rounded-lg hover:bg-indigo-800 transition-colors"
-              >
-                Sign In
-              </button>
+        <div className="py-5" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+          <div className="container py-5 text-center text-white">
+            <div className="row justify-content-center">
+              <div className="col-lg-8">
+                <h2 className="display-5 fw-bold mb-4">Ready to Start Shopping?</h2>
+                <p className="lead mb-5 opacity-90">
+                  Join thousands of satisfied customers and discover your next favorite product
+                </p>
+                <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                  <button
+                    onClick={() => onViewChange('signup')}
+                    className="btn btn-light btn-lg px-4 py-3 d-flex align-items-center justify-content-center"
+                    style={{ borderRadius: '12px', fontWeight: '600' }}
+                  >
+                    <Users className="me-2" size={20} />
+                    Create Account
+                  </button>
+                  <button
+                    onClick={() => onViewChange('login')}
+                    className="btn btn-outline-light btn-lg px-4 py-3"
+                    style={{ borderRadius: '12px', fontWeight: '600' }}
+                  >
+                    Sign In
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
