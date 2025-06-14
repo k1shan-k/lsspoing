@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, LogIn, User, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -54,13 +54,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
       if (success) {
         onViewChange('home');
       } else {
-        setErrors({ form: 'Invalid username or password. Please try again.' });
+        setErrors({ form: 'Invalid username or password. Please try the demo credentials below.' });
       }
     } catch (error) {
-      setErrors({ form: 'An error occurred. Please try again.' });
+      setErrors({ form: 'Invalid username or password. Please try the demo credentials below.' });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const useDemoCredentials = () => {
+    setFormData({
+      username: 'kminchelle',
+      password: '0lelplR'
+    });
+    setErrors({});
   };
 
   return (
@@ -76,6 +84,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
             <p className="mt-2 text-sm text-gray-600">
               Sign in to your account to continue shopping
             </p>
+          </div>
+
+          {/* Demo Credentials Info */}
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-blue-800">Demo Account</h3>
+                <p className="mt-1 text-sm text-blue-700">
+                  Use the demo credentials to explore the application
+                </p>
+                <button
+                  type="button"
+                  onClick={useDemoCredentials}
+                  className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500 underline"
+                >
+                  Fill demo credentials
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Form */}
@@ -105,7 +133,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                       errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Enter your username"
+                    placeholder="Try: kminchelle"
                   />
                 </div>
                 {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
@@ -129,7 +157,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onViewChange }) => {
                     className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                       errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Enter your password"
+                    placeholder="Try: 0lelplR"
                   />
                   <button
                     type="button"
