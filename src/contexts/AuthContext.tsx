@@ -39,16 +39,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user data on component mount
+
     const initAuth = async () => {
       const storedUser = authService.getCurrentUser();
       if (storedUser) {
-        // Verify token is still valid
         const isValid = await authService.verifyToken();
         if (isValid) {
           setUser(storedUser);
         } else {
-          // Token is invalid, clear stored data
           authService.logout();
         }
       }
